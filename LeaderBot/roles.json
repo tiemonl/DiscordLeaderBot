@@ -30,5 +30,17 @@
   {
     "name": "Senior",
     "description": "Be in the server for 1 year (365 days)"
+  },
+  {
+    "name": "Innovator",
+    "description": "Come up with a feature that gets implemented"
+  },
+  {
+    "name": "Role Chamber",
+    "description": "Come up with a new role that get's implemented"
+  },
+  {
+    "name": "White Hat",
+    "description": "Solve a bug with the program"
   }
 ]
