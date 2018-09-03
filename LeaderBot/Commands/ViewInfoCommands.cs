@@ -1,25 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
+using LeaderBot;
 
 namespace LeaderBot.Commands
 {
 	public class ViewInfoCommands : ModuleBase
 	{
+        RoleCommands roleCommands;
 
         public ViewInfoCommands(){
+            roleCommands = new RoleCommands();
         }
 
         [Command("help"), Summary("Get's a list of all the commands")]
         public async Task showCommands(){
             await ReplyAsync("`-help`, shows all available commands\n" +
                              "`-rolecount`, gets your current amount of roles\n" +
-                             "`-missingroles-`, returns a list of roles the user does not currently have" +
+                             "`-missingroles`, returns a list of roles the user does not currently have\n" +
+                             "`-getroledesc <role name>`, returns the description of the role and how to obtain\n" +
                              "`-admin`\n" +
                              "\t`-admin giverole <user that receives role> <role to give>`, gives a role to a user\n" +
                              "\t`-admin createroles`, currently adds roles from json format, but will be changed later to have more input");
@@ -62,5 +67,14 @@ namespace LeaderBot.Commands
                 await ReplyAsync(unobtainedRole.ToString());
             }
         }
-	}
+
+        [Command("getRoleDesc"), Summary("Returns role description")]
+        public async Task getRoleDesc([Summary("The role to get the description for")] string roleName)
+        {
+            var selectedRole = Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
+            var allRoles = roleCommands.getAllRoles();
+            var role = allRoles.Find(x => x.Name.ToLower() == selectedRole.Name.ToLower());
+            await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
+        }
+    }
 }

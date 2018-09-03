@@ -13,7 +13,7 @@ namespace LeaderBot.Commands
     [Group("admin")]
     public class RoleCommands : ModuleBase
     {
-        public List<Roles> items;
+        public static List<Roles> allRoles;
         public Random rand;
 
         public RoleCommands()
@@ -27,10 +27,13 @@ namespace LeaderBot.Commands
             using (StreamReader r = new StreamReader("roles.json"))
             {
                 var json = r.ReadToEnd();
-                items = JsonConvert.DeserializeObject<List<Roles>>(json);
+                allRoles = JsonConvert.DeserializeObject<List<Roles>>(json);
             }
         }
 
+        public List<Roles> getAllRoles(){
+            return allRoles;
+        }
         //https://docs.stillu.cc/
         [Command("createRoles"), Summary("Creates a role in the guild")]
         public async Task createRoles()
@@ -41,13 +44,14 @@ namespace LeaderBot.Commands
                 currentGuildRoles.Add(guildRoles.Name);
             }
 
-            foreach (var role in items)
+            foreach (var role in allRoles)
             {
                 if (!currentGuildRoles.Contains(role.Name))
                 {
                     var randColor = new Color(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
                     await Context.Guild.CreateRoleAsync(role.Name, GuildPermissions.None, randColor);
-                    await Logger.Log(new LogMessage(LogSeverity.Verbose , GetType().Name + ".createRoles", "Added role to server: " + role.ToString()));
+                    await Logger.Log(new LogMessage(LogSeverity.Verbose , GetType().Name + ".createRoles", "Added role to server: " + role.Name));
+                    await ReplyAsync($"Added role: {role.Name}\nHow to get: {role.Description}");
                 }
             }
         }
