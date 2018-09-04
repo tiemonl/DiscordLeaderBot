@@ -80,7 +80,7 @@ namespace LeaderBot
 			var document = new BsonDocument
 			{
 				{ "name", userName.ToString() },
-				{ "dateJoined", DateTime.Now },
+                { "dateJoined", DateTime.Now.ToString() },
 				{ "numberOfMessages", 0 },
 				{ "isBetaTester", false }
 			};
@@ -139,13 +139,8 @@ namespace LeaderBot
 				string jsonText = "{"+doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
 				Console.WriteLine(jsonText);
 				var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
-				Console.WriteLine($" Hello userId : {userInformation.Name} and number of messages : {userInformation.NumberOfMessages}");
-
-				//returning false when true...
-				//FIXME: json deserialize not working and get rid of !
-				Console.WriteLine(userInformation.IsBetaTester);
-				if (!userInformation.IsBetaTester) {
-					
+                Console.WriteLine($"Hello userId : {userInformation.Name} and number of messages : {userInformation.NumberOfMessages} joined: {userInformation.DateJoined} and is a beta tester: {userInformation.IsBetaTester}");
+                if (userInformation.IsBetaTester) {
 					await addRole(user as SocketGuildUser, "Beta Tester", channelID);
 				}
 				if (userInformation.NumberOfMessages >= 10000) {

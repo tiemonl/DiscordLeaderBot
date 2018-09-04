@@ -14,4 +14,7 @@
   <ItemGroup>
     <Folder Include="Commands\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="JsonBooleanConverter.cs" />
+  </ItemGroup>
 </Project>
