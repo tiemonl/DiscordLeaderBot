@@ -42,5 +42,9 @@
   {
     "name": "White Hat",
     "description": "Solve a bug with the program"
+  },
+  {
+    "name": "Beta Tester",
+    "description": "Helped develop this bot."
   }
 ]
