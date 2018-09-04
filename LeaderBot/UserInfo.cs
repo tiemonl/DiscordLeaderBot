@@ -14,6 +14,8 @@ namespace LeaderBot
         public string DateJoined { get; set; }
 		public int NumberOfMessages { get; set; }
 
-		public UserInfo(){}
+        //(LVL / 50)^2 * 800000 * ((LVL / 100) + 0.15) level formula i will use
+
+        public UserInfo(){}
 	}
 }
