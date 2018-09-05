@@ -9,21 +9,16 @@ namespace LeaderBot
         {
         }
 
-        //(LVL / 50)^2 * 800000 * ((LVL / 100) + 0.15).
-
-        private double currentExperience;
-        private double currentLevel;
-
-        public double addXP(){
-            return 1;
-        }
-
-
-
         public double getExperience(double currentLvl){
             double experience = 0;
-            experience = Math.Round(Math.Pow(currentLvl / 50, 2) * 800000 * ((currentLvl / 100) + .15));
+            experience = Math.Round(Math.Pow((currentLvl * 50),1.3));
             return experience;
+        }
+
+        public double getLevel(double currentExp){
+            double level = 0;
+            level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 50);
+            return level;
         }
     }
 }
