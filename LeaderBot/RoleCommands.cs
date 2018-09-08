@@ -8,7 +8,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 
-namespace LeaderBot.Commands
+namespace LeaderBot
 {
     [Group("admin")]
     public class RoleCommands : ModuleBase

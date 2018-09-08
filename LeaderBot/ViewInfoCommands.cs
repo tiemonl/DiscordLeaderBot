@@ -9,7 +9,7 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using LeaderBot;
 
-namespace LeaderBot.Commands
+namespace LeaderBot
 {
 	public class ViewInfoCommands : ModuleBase
 	{
