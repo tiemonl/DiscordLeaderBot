@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace LeaderBot
 {
@@ -32,12 +31,36 @@ namespace LeaderBot
 			client.Log += Log;
             client.UserJoined += UserJoined;
 			client.MessageReceived += HandleCommandAsync;
+			client.ReactionAdded += ReactionAdded;
 		}
+
+		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
+			var filterUserName = Builders<BsonDocument>.Filter.Eq("name", reaction.User.Value.ToString());
+			var update = new BsonDocument("$inc", new BsonDocument { { "reactionCount", 1 } });
+			await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update);
+
+			var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
+			if (doc != null) {
+				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
+				var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
+				if (userInformation.ReactionCount >= 250) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
+				} else if(userInformation.ReactionCount >= 100) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
+				} else if (userInformation.ReactionCount >= 50) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
+				} else if(userInformation.ReactionCount >= 25) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
+				}
+			} else {
+				await createUserInDatabase(reaction.User.Value as SocketUser);
+			}
+			}
 
 		public async Task MainAsync()
 		{
 			string token = GetKey.getKey();
-			var connectionString = "mongodb://localhost:27017";
+			var connectionString = "mongodb://192.168.0.123:27017";
 
 			mongoClient = new MongoClient(connectionString);
 			db = mongoClient.GetDatabase("Leaderbot");
@@ -63,28 +86,29 @@ namespace LeaderBot
 			if (socketUser != null)
 			{
 				userName = socketUser.ToString();
-				SocketGuildUser user = socketUser as SocketGuildUser;
-				if (user?.Nickname != null)
-				{
-					userName += " NickName: " + user.Nickname;
-				}
 			}
 			return userName;
 		}
 
-        public async Task UserJoined(SocketGuildUser user){
+        public async Task UserJoined(SocketGuildUser user) {
 			var userName = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
 			await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".UserJoined", userName.ToString() + " joined " + currentGuild.ToString()));
 			await addRole(user, "Family", 471383490185658400);
+			
+			await createUserInDatabase(userName);
+		}
+
+		private async Task createUserInDatabase(SocketUser userName) {
 			var document = new BsonDocument
 			{
 				{ "name", userName.ToString() },
-                { "dateJoined", DateTime.Now.ToString() },
+				{ "dateJoined", DateTime.Now.ToString() },
 				{ "numberOfMessages", 0 },
-				{ "isBetaTester", false }
+				{ "isBetaTester", false },
+				{ "reactionCount",  0 }
 			};
-
+			await addRole(userName as SocketGuildUser, "Family", 471383490185658400);
 			await userInfoCollection.InsertOneAsync(document);
 		}
 
@@ -109,7 +133,7 @@ namespace LeaderBot
 				var update = new BsonDocument("$inc", new BsonDocument { { "numberOfMessages", 1 } });
 				await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update);
 
-				await checkMessageCountForRole(userName, msg.Author, channelID);
+				await checkMessageCountForRole(msg.Author, channelID);
 
 				if (msg == null)
 					return;
@@ -132,8 +156,8 @@ namespace LeaderBot
 			}
 		}
 
-		public async Task checkMessageCountForRole(string userName, SocketUser user, ulong channelID) {
-			var filterUserName = Builders<BsonDocument>.Filter.Eq("name", userName.ToString());
+		public async Task checkMessageCountForRole(SocketUser user, ulong channelID) {
+			var filterUserName = Builders<BsonDocument>.Filter.Eq("name", user.ToString());
 			var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
 			if (doc != null) {
 				string jsonText = "{"+doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
@@ -154,7 +178,7 @@ namespace LeaderBot
 				}
 				
 			} else {
-				Console.WriteLine("No user found.");
+				await createUserInDatabase(user);
 			}
 		}
 

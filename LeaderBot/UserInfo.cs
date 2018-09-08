@@ -13,8 +13,7 @@ namespace LeaderBot
         public bool IsBetaTester { get; set; }
         public string DateJoined { get; set; }
 		public int NumberOfMessages { get; set; }
-
-        //(LVL / 50)^2 * 800000 * ((LVL / 100) + 0.15) level formula i will use
+		public int ReactionCount { get; set; }
 
         public UserInfo(){}
 	}

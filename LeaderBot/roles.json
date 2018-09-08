@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "name": "Family",
     "description": "Join the server!"
@@ -37,7 +37,7 @@
   },
   {
     "name": "Role Chamber",
-    "description": "Come up with a new role that get's implemented"
+    "description": "Come up with a new role that gets implemented"
   },
   {
     "name": "White Hat",
@@ -46,5 +46,37 @@
   {
     "name": "Beta Tester",
     "description": "Helped develop this bot."
+  },
+  {
+	"name": "Teen",
+	"description": "Be in the server for 3 months (90 days)"
+  },
+  {
+	"name": "Midlife crisis",
+	"description": "Be in the server for 9 months (270 days)"
+  },
+  {
+	"name": "Reactor",
+	"description": "Add a reaction to at least 25 messages"
+  },
+  {
+	"name": "Reactionary",
+	"description": "Add a reaction to at least 50 messages"
+  },
+  {
+	"name": "Major reaction",
+	"description": "Add a reaction to at least 100 messages"
+  },
+  {
+	"name": "Overreaction",
+	"description": "Add a reaction to at least 250 messages"
+  },
+  {
+	"name": "Frequent flyer",
+	"description": "Chat at least once a day for 15 days"
+  },
+  {
+	"name": "Superchatter",
+	"description": "Chat at least once a day for 30 days"
   }
 ]
