@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LeaderBot
 {
@@ -27,35 +28,12 @@ namespace LeaderBot
                 LogLevel = LogSeverity.Info
 			});
 			commands = new CommandService();
-
 			client.Log += Log;
             client.UserJoined += UserJoined;
 			client.MessageReceived += HandleCommandAsync;
 			client.ReactionAdded += ReactionAdded;
 		}
 
-		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
-			var filterUserName = Builders<BsonDocument>.Filter.Eq("name", reaction.User.Value.ToString());
-			var update = new BsonDocument("$inc", new BsonDocument { { "reactionCount", 1 } });
-			await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update);
-
-			var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
-			if (doc != null) {
-				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
-				var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
-				if (userInformation.ReactionCount >= 250) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
-				} else if(userInformation.ReactionCount >= 100) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
-				} else if (userInformation.ReactionCount >= 50) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
-				} else if(userInformation.ReactionCount >= 25) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
-				}
-			} else {
-				await createUserInDatabase(reaction.User.Value as SocketUser);
-			}
-			}
 
 		public async Task MainAsync()
 		{
@@ -72,6 +50,29 @@ namespace LeaderBot
 
 			// Block this task until the program is closed.
 			await Task.Delay(-1);
+		}
+
+		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
+			var filterUserName = Builders<BsonDocument>.Filter.Eq("name", reaction.User.Value.ToString());
+			var update = new BsonDocument("$inc", new BsonDocument { { "reactionCount", 1 } });
+			await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update);
+
+			var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
+			if (doc != null) {
+				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
+				var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
+				if (userInformation.ReactionCount >= 250) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
+				} else if (userInformation.ReactionCount >= 100) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
+				} else if (userInformation.ReactionCount >= 50) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
+				} else if (userInformation.ReactionCount >= 25) {
+					await addRole(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
+				}
+			} else {
+				await createUserInDatabase(reaction.User.Value as SocketUser);
+			}
 		}
 
 		private Task Log(LogMessage msg)
@@ -106,7 +107,9 @@ namespace LeaderBot
 				{ "dateJoined", DateTime.Now.ToString() },
 				{ "numberOfMessages", 0 },
 				{ "isBetaTester", false },
-				{ "reactionCount",  0 }
+				{ "reactionCount",  0 },
+				{ "experience", 0 },
+				{ "points", 0 }
 			};
 			await addRole(userName as SocketGuildUser, "Family", 471383490185658400);
 			await userInfoCollection.InsertOneAsync(document);

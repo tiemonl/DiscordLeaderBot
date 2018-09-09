@@ -14,12 +14,9 @@ namespace LeaderBot
     public class RoleCommands : ModuleBase
     {
         public static List<Roles> allRoles;
-        public Random rand;
+		public Random rand = new Random();
 
-        public RoleCommands()
-        {
-            rand = new Random();
-            LoadJson();
+        public RoleCommands(){
         }
 
         public void LoadJson()
@@ -31,14 +28,12 @@ namespace LeaderBot
             }
         }
 
-        public List<Roles> getAllRoles(){
-            return allRoles;
-        }
         //https://docs.stillu.cc/
         [Command("createRoles"), Summary("Creates a role in the guild")]
         public async Task createRoles()
         {
-            List<string> currentGuildRoles = new List<string>();
+			LoadJson();
+			List<string> currentGuildRoles = new List<string>();
             foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles)
             {
                 currentGuildRoles.Add(guildRoles.Name);
