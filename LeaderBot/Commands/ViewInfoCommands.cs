@@ -28,9 +28,12 @@ namespace LeaderBot {
 		}
 
 		[Command("rolecount"), Summary("Gets the role count of the current user")]
-		public async Task roleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified.")] SocketGuildUser user) {
+		public async Task roleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified.")] SocketGuildUser user = null) {
 
 			try {
+				if (user == null) {
+					user = Context.Message.Author as SocketGuildUser;
+				}
 				int amountOfRoles = user.Roles.Count - 1;
 				await ReplyAsync($"{user} has {amountOfRoles} roles");
 
