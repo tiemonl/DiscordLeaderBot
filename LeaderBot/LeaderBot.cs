@@ -10,10 +10,8 @@ using MongoDB.Bson;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LeaderBot
-{
-	public class LeaderBot
-	{
+namespace LeaderBot {
+	public class LeaderBot {
 		private readonly DiscordSocketClient client;
 		public static char CommandPrefix = '-';
 		private readonly CommandService commands;
@@ -21,22 +19,19 @@ namespace LeaderBot
 		MongoClient mongoClient;
 		IMongoDatabase db;
 
-		public LeaderBot()
-		{
-			client = new DiscordSocketClient(new DiscordSocketConfig
-			{
-                LogLevel = LogSeverity.Info
+		public LeaderBot() {
+			client = new DiscordSocketClient(new DiscordSocketConfig {
+				LogLevel = LogSeverity.Info
 			});
 			commands = new CommandService();
 			client.Log += Log;
-            client.UserJoined += UserJoined;
+			client.UserJoined += UserJoined;
 			client.MessageReceived += HandleCommandAsync;
 			client.ReactionAdded += ReactionAdded;
 		}
 
 
-		public async Task MainAsync()
-		{
+		public async Task MainAsync() {
 			string token = GetKey.getKey();
 			var connectionString = "mongodb://192.168.0.123:27017";
 
@@ -75,28 +70,25 @@ namespace LeaderBot
 			}
 		}
 
-		private Task Log(LogMessage msg)
-		{
-            Logger.Log(msg);
+		private Task Log(LogMessage msg) {
+			Logger.Log(msg);
 			return Task.CompletedTask;
 		}
 
-		private string GetUserName(SocketUser socketUser)
-		{
+		private string GetUserName(SocketUser socketUser) {
 			string userName = "NULL";
-			if (socketUser != null)
-			{
+			if (socketUser != null) {
 				userName = socketUser.ToString();
 			}
 			return userName;
 		}
 
-        public async Task UserJoined(SocketGuildUser user) {
+		public async Task UserJoined(SocketGuildUser user) {
 			var userName = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
 			await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".UserJoined", userName.ToString() + " joined " + currentGuild.ToString()));
 			await addRole(user, "Family", 471383490185658400);
-			
+
 			await createUserInDatabase(userName);
 		}
 
@@ -115,14 +107,12 @@ namespace LeaderBot
 			await userInfoCollection.InsertOneAsync(document);
 		}
 
-		public async Task HandleCommandAsync(SocketMessage messageParam)
-		{
+		public async Task HandleCommandAsync(SocketMessage messageParam) {
 			string userName = "";
 			string channelName = "";
 			string guildName = "";
 			int argPos = 0;
-			try
-			{
+			try {
 				var msg = messageParam as SocketUserMessage;
 
 				userName = GetUserName(msg.Author);
@@ -140,8 +130,7 @@ namespace LeaderBot
 
 				if (msg == null)
 					return;
-				else if (msg.HasCharPrefix(CommandPrefix, ref argPos))
-				{
+				else if (msg.HasCharPrefix(CommandPrefix, ref argPos)) {
 
 					var result = await commands.ExecuteAsync(context, argPos);
 
@@ -152,9 +141,7 @@ namespace LeaderBot
 						//await context.Channel.SendMessageAsync(message);
 					}
 				}
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, "HandleCommandAsync", $"G:{guildName} C:{channelName} U:{userName} Unexpected Exception {e}", e));
 			}
 		}
@@ -163,23 +150,23 @@ namespace LeaderBot
 			var filterUserName = Builders<BsonDocument>.Filter.Eq("name", user.ToString());
 			var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
 			if (doc != null) {
-				string jsonText = "{"+doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
+				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
 				Console.WriteLine(jsonText);
 				var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
-                Console.WriteLine($"Hello userId : {userInformation.Name} and number of messages : {userInformation.NumberOfMessages} joined: {userInformation.DateJoined} and is a beta tester: {userInformation.IsBetaTester}");
-                if (userInformation.IsBetaTester) {
+				Console.WriteLine($"Hello userId : {userInformation.Name} and number of messages : {userInformation.NumberOfMessages} joined: {userInformation.DateJoined} and is a beta tester: {userInformation.IsBetaTester}");
+				if (userInformation.IsBetaTester) {
 					await addRole(user as SocketGuildUser, "Beta Tester", channelID);
 				}
 				if (userInformation.NumberOfMessages >= 10000) {
 					await addRole(user as SocketGuildUser, "I wrote a novel", channelID);
-				} else if(userInformation.NumberOfMessages >= 1000) {
+				} else if (userInformation.NumberOfMessages >= 1000) {
 					await addRole(user as SocketGuildUser, "I could write a novel", channelID);
 				} else if (userInformation.NumberOfMessages >= 100) {
 					await addRole(user as SocketGuildUser, "I'm liking this server", channelID);
 				} else if (userInformation.NumberOfMessages >= 1) {
 					await addRole(user as SocketGuildUser, "Hi and Welcome!", channelID);
 				}
-				
+
 			} else {
 				await createUserInDatabase(user);
 			}

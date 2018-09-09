@@ -18,12 +18,13 @@ namespace LeaderBot {
 		[Command("help"), Summary("Get's a list of all the commands")]
 		public async Task showCommands() {
 			await ReplyAsync("`-help`, shows all available commands\n" +
-							 "`-rolecount`, gets your current amount of roles\n" +
-							 "`-missingroles`, returns a list of roles the user does not currently have\n" +
-							 "`-getroledesc <role name>`, returns the description of the role and how to obtain\n" +
-							 "`-admin`\n" +
-							 "\t`-admin giverole <user that receives role> <role to give>`, gives a role to a user\n" +
-							 "\t`-admin createroles`, currently adds roles from json format, but will be changed later to have more input");
+								"`-rolecount [User]`, gets your current amount of roles if no user is specified, otherwise returns rolecount of user specified.\n" +
+								"`-leaderboardRole [number of entries shown]`, returns a leaderboard of users with the most roles. Defaults to the top 10 users.\n" +
+								"`-missingroles`, returns a list of roles the user does not currently have\n" +
+								"`-getroledesc <role name>`, returns the description of the role and how to obtain\n" +
+								"`-admin`\n" +
+								"\t`-admin giverole <user that receives role> <role to give>`, gives a role to a user\n" +
+								"\t`-admin createroles`, currently adds roles from json format, but will be changed later to have more input");
 		}
 
 		[Command("rolecount"), Summary("Gets the role count of the current user")]
@@ -43,7 +44,7 @@ namespace LeaderBot {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.Append("```css\n");
 			stringBuilder.Append("Username".PadRight(30) + "| # of roles\n");
-			stringBuilder.Append("".PadRight(42, '-')+"\n");
+			stringBuilder.Append("".PadRight(42, '-') + "\n");
 			try {
 				var allUsers = new Dictionary<SocketGuildUser, int>();
 
