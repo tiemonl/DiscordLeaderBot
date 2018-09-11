@@ -17,5 +17,9 @@ namespace LeaderBot {
 			level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 50);
 			return level;
 		}
+
+        public void addExperience(int expToAdd){
+
+        }
 	}
 }

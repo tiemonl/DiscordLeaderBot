@@ -35,7 +35,7 @@ namespace LeaderBot {
 
 		public async Task MainAsync() {
 			string token = GetKey.getKey();
-			var connectionString = "mongodb://192.168.0.123:27017";
+			var connectionString = "mongodb://127.0.0.1:27017";
 
 			mongoClient = new MongoClient(connectionString);
 			db = mongoClient.GetDatabase("Leaderbot");
@@ -95,10 +95,12 @@ namespace LeaderBot {
 		}
 
 		private async Task createUserInDatabase(SocketUser userName) {
-			var document = new BsonDocument
+            var user = userName as SocketGuildUser;
+            var date = user.JoinedAt.ToString();
+            var document = new BsonDocument
 			{
 				{ "name", userName.ToString() },
-				{ "dateJoined", DateTime.Now.ToString() },
+                { "dateJoined",  date},
 				{ "numberOfMessages", 0 },
 				{ "isBetaTester", false },
 				{ "reactionCount",  0 },
@@ -126,9 +128,12 @@ namespace LeaderBot {
 
 				var filterUserName = Builders<BsonDocument>.Filter.Eq("name", userName.ToString());
 				var update = new BsonDocument("$inc", new BsonDocument { { "numberOfMessages", 1 } });
-				await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update);
+                var update2 = new BsonDocument("$inc", new BsonDocument { { "experience", msg.Content.Length } });
 
-				await checkMessageCountForRole(msg.Author, channelID);
+                await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update);
+                await userInfoCollection.FindOneAndUpdateAsync(filterUserName, update2);
+
+                await checkMessageCountForRole(msg.Author, channelID);
 
 				if (msg == null)
 					return;

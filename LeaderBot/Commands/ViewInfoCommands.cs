@@ -9,11 +9,17 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using LeaderBot;
 using System.Text;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
-		
-		public ViewInfoCommands() {
+        private IMongoCollection<BsonDocument> userInfoCollection;
+        private SupportingMethods methods;
+        MongoClient mongoClient;
+        IMongoDatabase db;
+
+        public ViewInfoCommands() {
 		}
 
 		[Command("help"), Summary("Get's a list of all the commands")]
@@ -93,13 +99,47 @@ namespace LeaderBot {
 			}
 		}
 
-		[Command("getRoleDesc"), Summary("Returns role description")]
-		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
-			SupportingMethods methods = new SupportingMethods();
-			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
-			var allRoles = RoleCommands.allRoles;
-			var role = allRoles.Find(x => methods.stringEquals(x.Name, selectedRole.Name));
-			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
-		}
-	}
+        [Command("getRoleDesc"), Summary("Returns role description")]
+        public async Task getRoleDesc([Summary("The role to get the description for")] string roleName)
+        {
+            SupportingMethods methods = new SupportingMethods();
+            var selectedRole = Context.Guild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
+            var allRoles = RoleCommands.allRoles;
+            var role = allRoles.Find(x => methods.stringEquals(x.Name, selectedRole.Name));
+            await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
+        }
+
+        [Command("getExperience"), Summary("Returns user experience")]
+        public async Task getExperience()
+        {
+            try
+            {
+                var connectionString = "mongodb://127.0.0.1:27017";
+
+                mongoClient = new MongoClient(connectionString);
+                db = mongoClient.GetDatabase("Leaderbot");
+                userInfoCollection = db.GetCollection<BsonDocument>("userData");
+
+                var user = Context.Message.Author as SocketGuildUser;
+                var filterUserName = Builders<BsonDocument>.Filter.Eq("name", user.ToString());
+                var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
+
+                if (doc != null)
+                {
+                    string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
+                    var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
+                    var currentExp = userInformation.Experience;
+                    var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 50);
+                    await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
+
+                }
+            }
+            catch (Exception ex)
+            {
+                await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".roleCount", "Unexpected Exception", ex));
+            }
+        }
+
+
+    }
 }

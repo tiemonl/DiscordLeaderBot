@@ -12,6 +12,8 @@ namespace LeaderBot {
 		public string DateJoined { get; set; }
 		public int NumberOfMessages { get; set; }
 		public int ReactionCount { get; set; }
+        public int Experience { get; set; }
+        public int Points { get; set; }
 
 		public UserInfo() { }
 	}
