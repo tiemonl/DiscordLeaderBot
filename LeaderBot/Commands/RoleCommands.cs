@@ -11,17 +11,19 @@ using Newtonsoft.Json;
 namespace LeaderBot {
 	[Group("admin")]
 	public class RoleCommands : ModuleBase {
-		public static List<Roles> allRoles;
+		public static List<Roles> allRoles = LoadJson();
 		public Random rand = new Random();
 
 		public RoleCommands() {
 		}
 
-		public void LoadJson() {
+		public static List<Roles> LoadJson() {
+			List<Roles> allRolesInServer;
 			using (StreamReader r = new StreamReader("roles.json")) {
 				var json = r.ReadToEnd();
-				allRoles = JsonConvert.DeserializeObject<List<Roles>>(json);
+				allRolesInServer = JsonConvert.DeserializeObject<List<Roles>>(json);
 			}
+			return allRolesInServer;
 		}
 
 		//https://docs.stillu.cc/

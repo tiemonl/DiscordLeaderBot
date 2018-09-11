@@ -12,6 +12,7 @@ using System.Text;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
+		
 		public ViewInfoCommands() {
 		}
 
@@ -94,9 +95,10 @@ namespace LeaderBot {
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
 		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
-			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
+			SupportingMethods methods = new SupportingMethods();
+			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
 			var allRoles = RoleCommands.allRoles;
-			var role = allRoles.Find(x => x.Name.ToLower() == selectedRole.Name.ToLower());
+			var role = allRoles.Find(x => methods.stringEquals(x.Name, selectedRole.Name));
 			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
 		}
 	}

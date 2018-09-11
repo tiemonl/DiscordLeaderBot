@@ -16,6 +16,7 @@ namespace LeaderBot {
 		public static char CommandPrefix = '-';
 		private readonly CommandService commands;
 		private IMongoCollection<BsonDocument> userInfoCollection;
+		private SupportingMethods methods;
 		MongoClient mongoClient;
 		IMongoDatabase db;
 
@@ -24,6 +25,7 @@ namespace LeaderBot {
 				LogLevel = LogSeverity.Info
 			});
 			commands = new CommandService();
+			methods = new SupportingMethods();
 			client.Log += Log;
 			client.UserJoined += UserJoined;
 			client.MessageReceived += HandleCommandAsync;
@@ -175,7 +177,7 @@ namespace LeaderBot {
 		public async Task addRole(SocketGuildUser user, string roleName, ulong channelID) {
 			var userName = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
-			var role = currentGuild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
+			var role = currentGuild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
 			if (!user.Roles.Contains(role)) {
 				await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".addRole", userName.ToString() + " has earned " + roleName));
 				await (user as IGuildUser).AddRoleAsync(role);
