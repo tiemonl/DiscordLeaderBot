@@ -18,8 +18,8 @@ namespace LeaderBot {
 			return level;
 		}
 
-        public void addExperience(int expToAdd){
+		public void addExperience(int expToAdd) {
 
-        }
+		}
 	}
 }

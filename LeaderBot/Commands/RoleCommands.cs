@@ -31,7 +31,7 @@ namespace LeaderBot {
 		public async Task createRoles() {
 			LoadJson();
 			List<string> currentGuildRoles = new List<string>();
-			foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles) {
+			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
 				currentGuildRoles.Add(guildRoles.Name);
 			}
 

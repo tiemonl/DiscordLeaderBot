@@ -14,12 +14,9 @@ using MongoDB.Bson;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
-        private IMongoCollection<BsonDocument> userInfoCollection;
-        private SupportingMethods methods;
-        MongoClient mongoClient;
-        IMongoDatabase db;
+		private SupportingMethods methods = new SupportingMethods();
 
-        public ViewInfoCommands() {
+		public ViewInfoCommands() {
 		}
 
 		[Command("help"), Summary("Get's a list of all the commands")]
@@ -60,7 +57,7 @@ namespace LeaderBot {
 
 				foreach (var user in (await Context.Guild.GetUsersAsync())) {
 					if (!user.IsBot)
-						allUsers.Add(user as SocketGuildUser, ((SocketGuildUser)user).Roles.Count - 1);
+						allUsers.Add(user as SocketGuildUser, ((SocketGuildUser) user).Roles.Count - 1);
 				}
 				if (allUsers.Count > 0) {
 					var sortedDict = from entry in allUsers orderby entry.Value descending select entry;
@@ -82,15 +79,54 @@ namespace LeaderBot {
 			}
 		}
 
+		[Command("leaderboardExperience"), Summary("Gets the role leaderboard")]
+		public async Task getExpLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.Append("```css\n");
+			string titleString = "Username".PadRight(30) + "| Total Experience";
+			stringBuilder.Append(titleString);
+			stringBuilder.Append("\n".PadRight(titleString.Length, '-') + "\n");
+			try {
+				var allUsers = new Dictionary<SocketGuildUser, int>();
+
+				foreach (var user in (await Context.Guild.GetUsersAsync())) {
+					if (!user.IsBot) {
+						var userName = user as SocketUser;
+						var userInfo = methods.getUserInformation(userName.ToString());
+						allUsers.Add(user as SocketGuildUser, userInfo.Experience);
+					}
+				}
+				if (allUsers.Count > 0) {
+					var sortedDict = from entry in allUsers orderby entry.Value descending select entry;
+					int i = 0;
+					foreach (var entry in sortedDict) {
+						stringBuilder.Append(entry.Key.ToString().PadRight(30) + "|\t" + entry.Value + "\n");
+						++i;
+						if (i >= userCount) {
+							break;
+						}
+					}
+					stringBuilder.Append("```");
+					await ReplyAsync($"{stringBuilder.ToString()}");
+				} else {
+					await ReplyAsync($"{GetType().Name}.getExpLeaderboard Unexpected Exception");
+				}
+			} catch (Exception ex) {
+				await Logger.Log(new LogMessage(LogSeverity.Error, $"{GetType().Name}.getExpLeaderboard", "Unexpected Exception", ex));
+			}
+		}
+
+
+
 		//will change, POC
 		//FIXME lol
 		[Command("missingRoles"), Summary("Gives a list of currently not attained roles")]
 		public async Task missingRoles() {
 			List<SocketRole> allGuildRoles = new List<SocketRole>();
-			foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles) {
+			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
 				allGuildRoles.Add(guildRoles);
 			}
-			foreach (SocketRole userRole in ((SocketGuildUser)Context.Message.Author).Roles) {
+			foreach (SocketRole userRole in ((SocketGuildUser) Context.Message.Author).Roles) {
 				if (allGuildRoles.Contains(userRole))
 					allGuildRoles.Remove(userRole);
 			}
@@ -99,47 +135,30 @@ namespace LeaderBot {
 			}
 		}
 
-        [Command("getRoleDesc"), Summary("Returns role description")]
-        public async Task getRoleDesc([Summary("The role to get the description for")] string roleName)
-        {
-            SupportingMethods methods = new SupportingMethods();
-            var selectedRole = Context.Guild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
-            var allRoles = RoleCommands.allRoles;
-            var role = allRoles.Find(x => methods.stringEquals(x.Name, selectedRole.Name));
-            await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
-        }
+		[Command("getRoleDesc"), Summary("Returns role description")]
+		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
+			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
+			var allRoles = RoleCommands.allRoles;
+			var role = allRoles.Find(x => methods.stringEquals(x.Name, selectedRole.Name));
+			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
+		}
 
-        [Command("getExperience"), Summary("Returns user experience")]
-        public async Task getExperience()
-        {
-            try
-            {
-                var connectionString = "mongodb://127.0.0.1:27017";
+		[Command("getExperience"), Summary("Returns user experience")]
+		public async Task getExperience() {
+			try {
+				string user = Context.Message.Author.ToString();
+				UserInfo userInfo = methods.getUserInformation(user);
+                if (userInfo != null) {
+					var currentExp = userInfo.Experience;
+					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 50);
+					await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
 
-                mongoClient = new MongoClient(connectionString);
-                db = mongoClient.GetDatabase("Leaderbot");
-                userInfoCollection = db.GetCollection<BsonDocument>("userData");
-
-                var user = Context.Message.Author as SocketGuildUser;
-                var filterUserName = Builders<BsonDocument>.Filter.Eq("name", user.ToString());
-                var doc = userInfoCollection.Find(filterUserName).FirstOrDefault();
-
-                if (doc != null)
-                {
-                    string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
-                    var userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
-                    var currentExp = userInformation.Experience;
-                    var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 50);
-                    await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
-
-                }
-            }
-            catch (Exception ex)
-            {
-                await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".roleCount", "Unexpected Exception", ex));
-            }
-        }
+				}
+			} catch (Exception ex) {
+				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".getExperience", "Unexpected Exception", ex));
+			}
+		}
 
 
-    }
+	}
 }
