@@ -92,7 +92,7 @@ namespace LeaderBot {
 				foreach (var user in (await Context.Guild.GetUsersAsync())) {
 					if (!user.IsBot) {
 						var userName = user as SocketUser;
-						var userInfo = methods.getUserInformation(userName.ToString());
+						UserInfo userInfo = methods.getUserInformation(userName.ToString());
 						allUsers.Add(user as SocketGuildUser, userInfo.Experience);
 					}
 				}
