@@ -147,10 +147,15 @@ namespace LeaderBot {
 		}
 
 		[Command("getExperience"), Summary("Returns user experience")]
-		public async Task getExperience() {
+        public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser userName = null) {
 			try {
-				string user = Context.Message.Author.ToString();
-				UserInfo userInfo = SupportingMethods.getUserInformation(user);
+
+                if (userName == null)
+                {
+                    userName = ((SocketGuildUser)Context.Message.Author);
+                }
+                var user = userName as SocketUser;
+                UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
                 if (userInfo != null) {
 					var currentExp = userInfo.Experience;
 					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
