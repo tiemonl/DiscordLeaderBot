@@ -104,8 +104,9 @@ namespace LeaderBot {
 
                 SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
                 SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
-
-				await checkMessageCountForRole(msg.Author, channelID);
+                if (!msg.Author.IsBot) {
+                    await checkMessageCountForRole(msg.Author, channelID);
+                }
 
 				if (msg == null)
 					return;
