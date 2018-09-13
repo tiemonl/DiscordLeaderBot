@@ -7,23 +7,18 @@ using Discord.Commands;
 using Discord.WebSocket;
 using MongoDB.Driver;
 using MongoDB.Bson;
-using Newtonsoft.Json;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LeaderBot {
 	public class LeaderBot {
 		private readonly DiscordSocketClient client;
-		public static char CommandPrefix = '-';
+		public static char CommandPrefix = '?';
 		private readonly CommandService commands;
-		private IMongoCollection<BsonDocument> userInfoCollection;
-		private readonly SupportingMethods methods;
 
 		public LeaderBot() {
 			client = new DiscordSocketClient(new DiscordSocketConfig {
 				LogLevel = LogSeverity.Info
 			});
 			commands = new CommandService();
-			methods = new SupportingMethods();
 			client.Log += Log;
 			client.UserJoined += UserJoined;
 			client.MessageReceived += HandleCommandAsync;
@@ -34,7 +29,7 @@ namespace LeaderBot {
 		public async Task MainAsync() {
 			string token = GetKey.getKey();
 
-			methods.SetupDatabase("userData");
+            SupportingMethods.SetupDatabase("userData");
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
 			await client.LoginAsync(TokenType.Bot, token);
@@ -47,9 +42,9 @@ namespace LeaderBot {
 		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
 			var user = reaction.User.Value.ToString();
 
-			methods.updateDocument(user, "reactionCount", 1);
+            SupportingMethods.updateDocument(user, "reactionCount", 1);
 
-			UserInfo userInfo = methods.getUserInformation(user);
+			UserInfo userInfo = SupportingMethods.getUserInformation(user);
 			if (userInfo != null) {
 				if (userInfo.ReactionCount >= 250) {
 					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
@@ -88,20 +83,8 @@ namespace LeaderBot {
 		}
 
 		private async Task createUserInDatabase(SocketUser userName, ulong id) {
-			var user = userName as SocketGuildUser;
-			var date = user.JoinedAt.ToString();
-			var document = new BsonDocument
-			{
-				{ "name", userName.ToString() },
-				{ "dateJoined",  date},
-				{ "numberOfMessages", 0 },
-				{ "isBetaTester", false },
-				{ "reactionCount",  0 },
-				{ "experience", 0 },
-				{ "points", 0 }
-			};
+            SupportingMethods.createUserInDatabase(userName);
 			await addRole(userName as SocketGuildUser, "Family", id);
-			await userInfoCollection.InsertOneAsync(document);
 		}
 
 		public async Task HandleCommandAsync(SocketMessage messageParam) {
@@ -119,8 +102,8 @@ namespace LeaderBot {
 				var channelID = msg.Channel.Id;
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.HandleCommandAsync", $"HandleCommandAsync G: {guildName} C: {channelName} User: {userName}  Msg: {msg}"));
 
-				methods.updateDocument(userName, "numberOfMessages", 1);
-				methods.updateDocument(userName, "experience", msg.Content.Length);
+                SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
+                SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
 
 				await checkMessageCountForRole(msg.Author, channelID);
 
@@ -144,7 +127,7 @@ namespace LeaderBot {
 
 		public async Task checkMessageCountForRole(SocketUser user, ulong channelID) {
 			string userName = user.ToString();
-			UserInfo userInfo = methods.getUserInformation(userName);
+			UserInfo userInfo = SupportingMethods.getUserInformation(userName);
 			if (userInfo != null) {
 				if (userInfo.IsBetaTester) {
 					await addRole(user as SocketGuildUser, "Beta Tester", channelID);
@@ -166,7 +149,7 @@ namespace LeaderBot {
 		public async Task addRole(SocketGuildUser user, string roleName, ulong channelID) {
 			var userName = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
-			var role = currentGuild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
+			var role = currentGuild.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
 			if (!user.Roles.Contains(role)) {
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.addRole", $"{userName} has earned {roleName}"));
 				await (user as IGuildUser).AddRoleAsync(role);

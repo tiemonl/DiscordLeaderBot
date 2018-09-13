@@ -3,7 +3,7 @@ using System.Text;
 
 namespace LeaderBot {
 	public class GetKey {
-		private static string keyPath = ".token";
+		private static string keyPath = "debug.token";
 
 		public static string getKey() {
 			if (File.Exists(keyPath)) {

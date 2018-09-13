@@ -14,7 +14,7 @@ using MongoDB.Bson;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
-		private SupportingMethods methods = new SupportingMethods();
+        SupportingMethods methods = new SupportingMethods();
 
 		public ViewInfoCommands() {
 		}
@@ -92,8 +92,9 @@ namespace LeaderBot {
 				foreach (var user in (await Context.Guild.GetUsersAsync())) {
 					if (!user.IsBot) {
 						var userName = user as SocketUser;
-						UserInfo userInfo = methods.getUserInformation(userName.ToString());
-						allUsers.Add(user as SocketGuildUser, userInfo.Experience);
+						UserInfo userInfo = SupportingMethods.getUserInformation(userName.ToString());
+                        if (userInfo != null)
+						    allUsers.Add(user as SocketGuildUser, userInfo.Experience);
 					}
 				}
 				if (allUsers.Count > 0) {
@@ -130,16 +131,18 @@ namespace LeaderBot {
 				if (allGuildRoles.Contains(userRole))
 					allGuildRoles.Remove(userRole);
 			}
+            string missingroles = "";
 			foreach (var unobtainedRole in allGuildRoles) {
-				await ReplyAsync(unobtainedRole.ToString());
+                missingroles += unobtainedRole.ToString() + ", ";
 			}
+            await ReplyAsync(missingroles);
 		}
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
 		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
-			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => methods.stringEquals(x.Name, roleName));
+			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
 			var allRoles = RoleCommands.allRoles;
-			var role = allRoles.Find(x => methods.stringEquals(x.Name, selectedRole.Name));
+			var role = allRoles.Find(x => SupportingMethods.stringEquals(x.Name, selectedRole.Name));
 			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
 		}
 
@@ -147,10 +150,10 @@ namespace LeaderBot {
 		public async Task getExperience() {
 			try {
 				string user = Context.Message.Author.ToString();
-				UserInfo userInfo = methods.getUserInformation(user);
+				UserInfo userInfo = SupportingMethods.getUserInformation(user);
                 if (userInfo != null) {
 					var currentExp = userInfo.Experience;
-					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 50);
+					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
 					await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
 
 				}

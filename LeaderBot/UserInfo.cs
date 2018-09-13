@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace LeaderBot {
-	class UserInfo {
+	public class UserInfo {
 		public string Name { get; set; }
 		public bool IsBetaTester { get; set; }
 		public string DateJoined { get; set; }
