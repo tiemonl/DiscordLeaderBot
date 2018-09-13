@@ -115,9 +115,9 @@ namespace LeaderBot {
 
 					if (!result.IsSuccess) // If execution failed, reply with the error message.
 					{
-						string message = "Command Failed: " + result;
+						string message = "Command Failed: " + msg;
 						await Logger.Log(new LogMessage(LogSeverity.Error, $"{GetType().Name}.HandleCommandAsync", message));
-						//await context.Channel.SendMessageAsync(message);
+						await context.Channel.SendMessageAsync(message);
 					}
 				}
 			} catch (Exception e) {
