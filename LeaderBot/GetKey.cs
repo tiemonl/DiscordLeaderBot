@@ -3,9 +3,9 @@ using System.Text;
 
 namespace LeaderBot {
 	public class GetKey {
-		private static string keyPath = "debug.token";
 
-		public static string getKey() {
+		public static string getKey(string bot) {
+			string keyPath = $"Tokens\\{bot}.token";
 			if (File.Exists(keyPath)) {
 				using (StreamReader sr = new StreamReader(keyPath, Encoding.UTF8)) {
 					string key = sr.ReadToEnd();

@@ -11,7 +11,7 @@ using MongoDB.Bson;
 namespace LeaderBot {
 	public class LeaderBot {
 		private readonly DiscordSocketClient client;
-		public static char CommandPrefix = '?';
+		public static char CommandPrefix = '-';
 		private readonly CommandService commands;
 
 		public LeaderBot() {
@@ -27,7 +27,12 @@ namespace LeaderBot {
 
 
 		public async Task MainAsync() {
-			string token = GetKey.getKey();
+			Console.WriteLine("Which bot to run: ");
+			string key = Console.ReadLine();
+			if (key.Equals("debug")) {
+				CommandPrefix = '?';
+			}
+			string token = GetKey.getKey(key);
 
             SupportingMethods.SetupDatabase("userData");
 

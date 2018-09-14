@@ -41,4 +41,5 @@ Thumbs.db
 *.dotCover
 
 #Token Key
-*.token
+*/Tokens/*
+Tokens/*
