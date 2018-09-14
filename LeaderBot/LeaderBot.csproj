@@ -15,4 +15,7 @@
     <Compile Remove="DatabaseConnection.cs" />
     <Compile Remove="DatabaseConnection.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tokens\" />
+  </ItemGroup>
 </Project>

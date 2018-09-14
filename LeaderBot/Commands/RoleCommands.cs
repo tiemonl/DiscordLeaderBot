@@ -11,13 +11,13 @@ using Newtonsoft.Json;
 namespace LeaderBot {
 	[Group("admin")]
 	public class RoleCommands : ModuleBase {
-		public static List<Roles> allRoles = LoadJson();
+		public static List<Roles> allRoles = LoadRolesJson();
 		public Random rand = new Random();
 
 		public RoleCommands() {
 		}
 
-		public static List<Roles> LoadJson() {
+		public static List<Roles> LoadRolesJson() {
 			List<Roles> allRolesInServer;
 			using (StreamReader r = new StreamReader("roles.json")) {
 				var json = r.ReadToEnd();
@@ -29,7 +29,7 @@ namespace LeaderBot {
 		//https://docs.stillu.cc/
 		[Command("createRoles"), Summary("Creates a role in the guild")]
 		public async Task createRoles() {
-			LoadJson();
+			LoadRolesJson();
 			List<string> currentGuildRoles = new List<string>();
 			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
 				currentGuildRoles.Add(guildRoles.Name);
