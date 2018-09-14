@@ -107,9 +107,10 @@ namespace LeaderBot {
 				var channelID = msg.Channel.Id;
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.HandleCommandAsync", $"HandleCommandAsync G: {guildName} C: {channelName} User: {userName}  Msg: {msg}"));
 
-                SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
-                SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
-                if (!msg.Author.IsBot) {
+                if (!msg.Author.IsBot)
+                {
+                    SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
+                    SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
                     await checkMessageCountForRole(msg.Author, channelID);
                 }
 
