@@ -34,7 +34,8 @@ namespace LeaderBot {
 			}
 			string token = GetKey.getKey(key);
 
-            SupportingMethods.SetupDatabase("userData");
+            SupportingMethods.SetupMongoDatabase();
+			SupportingMethods.SetupMongoCollection("userData");
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
 			await client.LoginAsync(TokenType.Bot, token);
@@ -50,7 +51,7 @@ namespace LeaderBot {
             SupportingMethods.updateDocument(user, "reactionCount", 1);
 
 			UserInfo userInfo = SupportingMethods.getUserInformation(user);
-			if (userInfo != null) {
+			if (userInfo != null) {  
 				if (userInfo.ReactionCount >= 250) {
 					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
 				} else if (userInfo.ReactionCount >= 100) {

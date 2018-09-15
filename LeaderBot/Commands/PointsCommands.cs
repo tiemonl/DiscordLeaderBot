@@ -18,21 +18,21 @@ namespace LeaderBot.Commands
         [Command("dailyPoints"), Summary("Adds points to user")]
         public async Task dailyPoints()
         {
-            SupportingMethods.SetupDatabase("pointsReceived");
-
-            string currentDate = DateTime.Now.ToString("yyyyMMdd");
+			SupportingMethods.SetupMongoCollection("pointsReceived");
+			string currentDate = DateTime.Now.ToString("yyyyMMdd");
             PointsReceived pointsReceived = SupportingMethods.getPointsReceived("date", currentDate);
             var user = Context.Message.Author;
             List<string> users = pointsReceived.Users.ToList();
 
             if (users.Contains(user.ToString()))
             {
-                await ReplyAsync($"{user} has already reclaimed the daily points.");
+				SupportingMethods.SetupMongoCollection("userData");
+				await ReplyAsync($"{user} has already reclaimed the daily points.");
             }
             else
             {
-                SupportingMethods.updateArray("date",currentDate, "users", user.ToString());
-                SupportingMethods.SetupDatabase("userData");
+				SupportingMethods.updateArray("date",currentDate, "users", user.ToString());
+                SupportingMethods.SetupMongoCollection("userData");
                 Random rand = new Random();
                 var points = rand.Next(100, 250);
                 SupportingMethods.updateDocument(user.ToString(), "points", points);
