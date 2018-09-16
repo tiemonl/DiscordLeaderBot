@@ -5,6 +5,7 @@ using LeaderBot.Points;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace LeaderBot {
 	/// <summary>
@@ -32,11 +33,11 @@ namespace LeaderBot {
 		/// <returns>The mongo collection</returns>
 		/// <param name="collectionName">Collection name in the MongoDB</param>
 		public static void SetupMongoDatabase() {
-			string connectionString = "mongodb://localhost:27017";
+			string connectionString = "mongodb://192.168.0.123:27017";
 
 			Client = new MongoClient(connectionString);
 			Database = Client.GetDatabase("Leaderbot");
-			
+
 		}
 
 		public static void SetupMongoCollection(string collectionName) {
@@ -123,7 +124,7 @@ namespace LeaderBot {
 				userInformation = JsonConvert.DeserializeObject<PointsReceived>(jsonText);
 
 			} else {
-				
+
 				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(SupportingMethods).Name}.getUserInformation", "Could not find user!"));
 			}
 			return userInformation;
@@ -137,13 +138,31 @@ namespace LeaderBot {
 			Collection.InsertOneAsync(document);
 		}
 
+		public static List<Roles> LoadAllRolesFromServer() {
+			SetupMongoCollection("roles");
+			List<Roles> allRolesInServer = new List<Roles>();
 
+			using (var cursor = Collection.Find(new BsonDocument()).ToCursor()) {
+				while (cursor.MoveNext()) {
+					foreach (var doc in cursor.Current) {
+						string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
+						allRolesInServer.Add(JsonConvert.DeserializeObject<Roles>(jsonText));
+					}
+				}
+			}
+			//var jsons = Collection.Find(_ => true);
+			//string json = jsons.ToJson();
+			//json = "{" + json.Substring(json.IndexOf(',') + 1);
+			//allRolesInServer = JsonConvert.DeserializeObject<List<Roles>>(json);
+			SetupMongoCollection("userData");
+			return allRolesInServer;
+		}
 
 		public static void createUserInDatabase(SocketUser userName) {
-	var user = userName as SocketGuildUser;
-	var date = user.JoinedAt.ToString();
-	var document = new BsonDocument
-	{
+			var user = userName as SocketGuildUser;
+			var date = user.JoinedAt.ToString();
+			var document = new BsonDocument
+			{
 				{ "name", userName.ToString() },
 				{ "dateJoined",  date},
 				{ "numberOfMessages", 0 },
@@ -152,7 +171,7 @@ namespace LeaderBot {
 				{ "experience", 0 },
 				{ "points", 0 }
 			};
-	Collection.InsertOneAsync(document);
-}
+			Collection.InsertOneAsync(document);
+		}
 	}
 }

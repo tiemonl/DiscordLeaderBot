@@ -11,25 +11,15 @@ using Newtonsoft.Json;
 namespace LeaderBot {
 	[Group("admin")]
 	public class RoleCommands : ModuleBase {
-		public static List<Roles> allRoles = LoadRolesJson();
+		public static List<Roles> allRoles = SupportingMethods.LoadAllRolesFromServer();
 		public Random rand = new Random();
 
 		public RoleCommands() {
 		}
 
-		public static List<Roles> LoadRolesJson() {
-			List<Roles> allRolesInServer;
-			using (StreamReader r = new StreamReader("roles.json")) {
-				var json = r.ReadToEnd();
-				allRolesInServer = JsonConvert.DeserializeObject<List<Roles>>(json);
-			}
-			return allRolesInServer;
-		}
-
 		//https://docs.stillu.cc/
 		[Command("createRoles"), Summary("Creates a role in the guild")]
 		public async Task createRoles() {
-			LoadRolesJson();
 			List<string> currentGuildRoles = new List<string>();
 			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
 				currentGuildRoles.Add(guildRoles.Name);
@@ -53,6 +43,7 @@ namespace LeaderBot {
 			var role = currentGuild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
 			await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".addRole", userInfo.ToString() + " added role " + role.ToString()));
 			await (userInfo as IGuildUser).AddRoleAsync(role);
+			await ReplyAsync($"{userInfo} now has {role}");
 		}
 	}
 }
