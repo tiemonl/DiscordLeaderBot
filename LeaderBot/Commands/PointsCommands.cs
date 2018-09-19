@@ -73,16 +73,16 @@ namespace LeaderBot.Commands
                 {
                     await ReplyAsync($"{user} has {currentPoints} points! You cannot bet {bettingPoints}!");
                 }
-                else if (bettingPoints <= 0)
+                else if (bettingPoints < 50)
                 {
-                    await ReplyAsync($"Cannot bet zero or less points");
+                    await ReplyAsync($"Minimum bet is 50 points");
                 }
                 else
                 {
                     Random rand = new Random();
-                    var num = rand.Next(1, 101);
+                    var num = rand.Next(0,2);
                     string result = null;
-                    if (num >= 50)
+                    if (num == 0)
                     {
                         result = "heads";
                     }

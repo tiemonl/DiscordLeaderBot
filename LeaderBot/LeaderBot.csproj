@@ -17,6 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tokens\" />
-    <Folder Include="Points\" />
+    <Folder Include="Objects\" />
   </ItemGroup>
 </Project>

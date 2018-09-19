@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json;
-using LeaderBot;
 using System.Text;
 using MongoDB.Driver;
-using MongoDB.Bson;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
