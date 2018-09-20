@@ -6,6 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace LeaderBot {
 	/// <summary>
@@ -33,8 +34,12 @@ namespace LeaderBot {
 		/// <returns>The mongo collection</returns>
 		/// <param name="collectionName">Collection name in the MongoDB</param>
 		public static void SetupMongoDatabase() {
-			string connectionString = Resource1.mongoconnection;
-
+			string connectionString = null;
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				connectionString = "mongodb://localhost:27017";
+			else {
+				connectionString = Resources.mongoconnection;
+			}
 			Client = new MongoClient(connectionString);
 			Database = Client.GetDatabase("Leaderbot");
 
