@@ -33,7 +33,7 @@ namespace LeaderBot {
 		/// <returns>The mongo collection</returns>
 		/// <param name="collectionName">Collection name in the MongoDB</param>
 		public static void SetupMongoDatabase() {
-			string connectionString = "mongodb://localhost:27017";
+			string connectionString = Resource1.mongoconnection;
 
 			Client = new MongoClient(connectionString);
 			Database = Client.GetDatabase("Leaderbot");
