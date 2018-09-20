@@ -140,7 +140,7 @@ namespace LeaderBot {
 			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
 			var allRoles = SupportingMethods.LoadAllRolesFromServer();
 			var role = allRoles.Find(x => SupportingMethods.stringEquals(x.Name, selectedRole.Name));
-			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}");
+			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}\n\t-Difficulty: {role.Difficulty}");
 		}
 
 		[Command("getExperience"), Summary("Returns user experience")]
