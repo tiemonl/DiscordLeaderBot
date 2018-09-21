@@ -129,7 +129,7 @@ namespace LeaderBot {
 					allGuildRoles.Remove(userRole);
 			}
             string missingroles = "";
-			foreach (var unobtainedRole in allGuildRoles) {
+			foreach (var unobtainedRole in allGuildRoles.OrderBy(x => x.Name)) {
                 missingroles += unobtainedRole.ToString() + ", ";
 			}
             await ReplyAsync(missingroles);

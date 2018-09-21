@@ -114,8 +114,14 @@ namespace LeaderBot {
                     SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
                     await checkMessageCountForRole(msg.Author, channelID);
                 }
+                if (msg.Author.Id == 181240813492109312)
+                {
+                    if (msg.MentionedUsers.ToList().Count >= 1){
+                        await addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+                    }
+                }
 
-				if (msg == null)
+                if (msg == null)
 					return;
 				else if (msg.HasCharPrefix(CommandPrefix, ref argPos)) {
 

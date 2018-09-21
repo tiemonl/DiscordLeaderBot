@@ -51,18 +51,21 @@ namespace LeaderBot {
         {
             var allRoles = SupportingMethods.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).ToList();
             var allGuildRoles = Context.Guild.Roles.ToList();
-
-            foreach (var irole in allGuildRoles)
+            int i = 1;
+            foreach (var role in allRoles)
             {
-                foreach (var role in allRoles)
+                foreach (var irole in allGuildRoles)
                 {
+
                     if (role.Name == irole.Name)
                     {
-                        await irole.ModifyAsync(x => x.Position = allRoles.IndexOf(role)+1);
+                        Console.WriteLine($"{irole.Position} {irole.Name}");
+                        await irole.ModifyAsync(x => x.Position = i);
+                        Console.WriteLine($"new:{irole.Position} {irole.Name}");
                         break;
                     }
                 }
-
+                ++i;
             }
 
             await ReplyAsync($"Roles have been reordered");
