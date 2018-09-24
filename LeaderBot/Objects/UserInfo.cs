@@ -14,6 +14,7 @@ namespace LeaderBot {
 		public int ReactionCount { get; set; }
         public int Experience { get; set; }
         public int Points { get; set; }
+		public string[] Roles { get; set; }
 
 		public UserInfo() { }
 	}

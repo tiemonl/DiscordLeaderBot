@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace LeaderBot {
 	[Group("admin")]
@@ -21,7 +21,7 @@ namespace LeaderBot {
 		[Command("createRoles"), Summary("Creates a role in the guild")]
 		public async Task createRoles() {
 			List<string> currentGuildRoles = new List<string>();
-			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
+			foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles) {
 				currentGuildRoles.Add(guildRoles.Name);
 			}
 
@@ -35,40 +35,52 @@ namespace LeaderBot {
 			}
 		}
 
+		[Command("updateUsers"), Summary("edit's user info in database")]
+		public async Task updateUsers() {
+			StringBuilder sb = new StringBuilder();
+			foreach (var user in (await Context.Guild.GetUsersAsync())) {
+				if (!user.IsBot) {
+					var userInfo = SupportingMethods.getUserInformation(user.ToString());
+
+					foreach (SocketRole userRole in ((SocketGuildUser)user).Roles) {
+						if (!userInfo.Roles.Contains(userRole.ToString()))
+							SupportingMethods.updateArray("name", user.ToString(), "roles", userRole.ToString());
+					}
+					sb.Append($"{user} updated.\n");
+				}
+			}
+			await ReplyAsync(sb.ToString());
+		}
+
 		[Command("giveRole"), Summary("Adds role to specified user"), RequireUserPermission(GuildPermission.Administrator)]
 		public async Task giveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add")] string roleName) {
-
+			
 			var userInfo = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
 			var role = currentGuild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
+			SupportingMethods.updateArray("name", user.ToString(), "roles", role.ToString());
 			await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".addRole", userInfo.ToString() + " added role " + role.ToString()));
 			await (userInfo as IGuildUser).AddRoleAsync(role);
 			await ReplyAsync($"{userInfo} now has {role}");
 		}
 
-        [Command("reorderRoles"), Summary("Reorders roles based on difficulty"), RequireUserPermission(GuildPermission.Administrator)]
-        public async Task reorderRoles()
-        {
-            var allRoles = SupportingMethods.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).ToList();
-            var allGuildRoles = Context.Guild.Roles.ToList();
-            int i = 1;
-            foreach (var role in allRoles)
-            {
-                foreach (var irole in allGuildRoles)
-                {
+		[Command("reorderRoles"), Summary("Reorders roles based on difficulty"), RequireUserPermission(GuildPermission.Administrator)]
+		public async Task reorderRoles() {
+			var allRoles = SupportingMethods.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Select(x => x.Name).ToList();
+			var allGuildRoles = Context.Guild.Roles.OrderBy(y => allRoles.IndexOf(y.Name)).ToList();
 
-                    if (role.Name == irole.Name)
-                    {
-                        Console.WriteLine($"{irole.Position} {irole.Name}");
-                        await irole.ModifyAsync(x => x.Position = i);
-                        Console.WriteLine($"new:{irole.Position} {irole.Name}");
-                        break;
-                    }
-                }
-                ++i;
-            }
+			//reorder leaderbot roles to be at the top for hierarchy purposes
+			var leaderbotRoles = allGuildRoles.Where(x => x.Name.Contains("leaderbot")).Reverse().ToList();
+			allGuildRoles.RemoveAll(x => x.Name.Contains("leaderbot"));
+			allGuildRoles.AddRange(leaderbotRoles);
 
-            await ReplyAsync($"Roles have been reordered");
-        }
-    }
+			//sort the list based on the difficulty
+			var sorting = allGuildRoles.Select((role, pos) => {
+				var res = new ReorderRoleProperties(role.Id, pos);
+				return res;
+			});
+			await Context.Guild.ReorderRolesAsync(sorting);
+			await ReplyAsync($"Roles have been reordered");
+		}
+	}
 }

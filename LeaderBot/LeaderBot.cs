@@ -167,6 +167,7 @@ namespace LeaderBot {
 			if (!user.Roles.Contains(role)) {
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.addRole", $"{userName} has earned {roleName}"));
 				await (user as IGuildUser).AddRoleAsync(role);
+				SupportingMethods.updateArray("name", user.ToString(), "roles", role.ToString());
 				var channelName = client.GetChannel(channelID) as IMessageChannel;
 				await channelName.SendMessageAsync($"{userName} has earned **{role.Name}**");
 			}
