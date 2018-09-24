@@ -174,7 +174,13 @@ namespace LeaderBot {
 						if (leaderboardName.Equals("Experience")) {
 							allUsers.Add(user as SocketGuildUser, userInfo.Experience);
 						} else if (leaderboardName.Equals("Roles")) {
-							allUsers.Add(user as SocketGuildUser, userInfo.Roles.Length - 1);
+							allUsers.Add(user as SocketGuildUser, userInfo.Roles.Length - 1); //-1: remove @everyone
+						} else if (leaderboardName.Equals("Points")) {
+							allUsers.Add(user as SocketGuildUser, userInfo.Points);
+						} else if (leaderboardName.Equals("Messages")) {
+							allUsers.Add(user as SocketGuildUser, userInfo.NumberOfMessages);
+						} else if (leaderboardName.Equals("Reactions")) {
+							allUsers.Add(user as SocketGuildUser, userInfo.ReactionCount);
 						}
 					}
 				}
