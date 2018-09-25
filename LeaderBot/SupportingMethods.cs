@@ -37,7 +37,7 @@ namespace LeaderBot {
 		/// <param name="collectionName">Collection name in the MongoDB</param>
 		public static void SetupMongoDatabase() {
 			string connectionString = null;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				connectionString = "mongodb://localhost:27017";
 			else {
 				connectionString = Resources.mongoconnection;
@@ -144,7 +144,8 @@ namespace LeaderBot {
 		public static void createUserInDatabase(SocketUser userName) {
 			var user = userName as SocketGuildUser;
 			var date = user.JoinedAt.ToString();
-			var document = new BsonDocument
+
+            var document = new BsonDocument
 			{
 				{ "name", userName.ToString() },
 				{ "dateJoined",  date},

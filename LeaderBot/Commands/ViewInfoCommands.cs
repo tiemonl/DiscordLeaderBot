@@ -77,9 +77,11 @@ namespace LeaderBot {
 			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}\n\t-Difficulty: {role.Difficulty}");
 		}
 
-		[Command("getExperience"), Summary("Returns user experience")]
-        public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser userName = null) {
-			try {
+        [Command("getExperience"), Summary("Returns user experience")]
+        public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser userName = null)
+        {
+            try
+            {
 
                 if (userName == null)
                 {
@@ -87,17 +89,38 @@ namespace LeaderBot {
                 }
                 var user = userName as SocketUser;
                 UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
-                if (userInfo != null) {
-					var currentExp = userInfo.Experience;
-					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
-					await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
+                if (userInfo != null)
+                {
+                    var currentExp = userInfo.Experience;
+                    var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
+                    await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
 
-				}
-			} catch (Exception ex) {
-				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".getExperience", "Unexpected Exception", ex));
-			}
-		}
+                }
+            }
+            catch (Exception ex)
+            {
+                await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".getExperience", "Unexpected Exception", ex));
+            }
+        }
+
+        [Command("test"), Summary("Returns user experience")]
+        public async Task test()
+        {
+            try
+            {
+                var userName = ((SocketGuildUser)Context.Message.Author);
+                var date = DateTime.Parse(userName.JoinedAt.ToString());
+                var today = DateTime.Now;
+                var daysInServer = today-date;
+                await ReplyAsync($"user joined {date}\nToday: {today}\nuser in server for {daysInServer.Days} days");
+            }
+            catch (Exception ex)
+            {
+                await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".getExperience", "Unexpected Exception", ex));
+            }
+        }
 
 
-	}
+
+    }
 }

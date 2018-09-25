@@ -23,10 +23,10 @@ namespace LeaderBot {
 			client.UserJoined += UserJoined;
 			client.MessageReceived += HandleCommandAsync;
 			client.ReactionAdded += ReactionAdded;
-		}
 
+        }
 
-		public async Task MainAsync() {
+        public async Task MainAsync() {
 			Console.WriteLine("Which bot to run: ");
 			string key = Console.ReadLine();
 			if (key.Equals("debug")) {
@@ -36,6 +36,7 @@ namespace LeaderBot {
 
             SupportingMethods.SetupMongoDatabase();
 			SupportingMethods.SetupMongoCollection("userData");
+            RoleCheck.setUpClient(client);
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
 			await client.LoginAsync(TokenType.Bot, token);
@@ -45,28 +46,18 @@ namespace LeaderBot {
 			await Task.Delay(-1);
 		}
 
-		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
-			var user = reaction.User.Value.ToString();
+		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            var user = reaction.User.Value.ToString();
 
             SupportingMethods.updateDocument(user, "reactionCount", 1);
 
-			UserInfo userInfo = SupportingMethods.getUserInformation(user);
-			if (userInfo != null) {  
-				if (userInfo.ReactionCount >= 250) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
-				} else if (userInfo.ReactionCount >= 100) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
-				} else if (userInfo.ReactionCount >= 50) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
-				} else if (userInfo.ReactionCount >= 25) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
-				}
-			} else {
-				await createUserInDatabase(reaction.User.Value as SocketUser, channel.Id);
-			}
-		}
+            await RoleCheck.reactionCountRoles(channel, reaction, user);
+        }
 
-		private Task Log(LogMessage msg) {
+
+
+        private Task Log(LogMessage msg) {
 			Logger.Log(msg);
 			return Task.CompletedTask;
 		}
@@ -85,13 +76,9 @@ namespace LeaderBot {
 			var id = currentGuild.DefaultChannel.Id;
 			await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.UserJoined", $"{userName} joined {currentGuild}"));
 
-			await createUserInDatabase(userName, id);
+			await RoleCheck.createUserInDatabase(userName, id);
 		}
 
-		private async Task createUserInDatabase(SocketUser userName, ulong id) {
-            SupportingMethods.createUserInDatabase(userName);
-			await addRole(userName as SocketGuildUser, "Family", id);
-		}
 
 		public async Task HandleCommandAsync(SocketMessage messageParam) {
 			string userName = "";
@@ -112,12 +99,13 @@ namespace LeaderBot {
                 {
                     SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
                     SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
-                    await checkMessageCountForRole(msg.Author, channelID);
+                    await RoleCheck.messageCountRoles(msg.Author, channelID);
+                    await RoleCheck.dateJoinedRoles(msg.Author, channelID);
                 }
                 if (msg.Author.Id == 181240813492109312)
                 {
                     if (msg.MentionedUsers.ToList().Count >= 1){
-                        await addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+                        await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
                     }
                 }
 
@@ -137,40 +125,6 @@ namespace LeaderBot {
 			} catch (Exception e) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, $"{GetType().Name}.HandleCommandAsync", $"G:{guildName} C:{channelName} U:{userName} Unexpected Exception {e}", e));
 			}
-		}
-
-		public async Task checkMessageCountForRole(SocketUser user, ulong channelID) {
-			string userName = user.ToString();
-			UserInfo userInfo = SupportingMethods.getUserInformation(userName);
-			if (userInfo != null) {
-				if (userInfo.IsBetaTester) {
-					await addRole(user as SocketGuildUser, "Beta Tester", channelID);
-				}
-				if (userInfo.NumberOfMessages >= 10000) {
-					await addRole(user as SocketGuildUser, "I wrote a novel", channelID);
-				} else if (userInfo.NumberOfMessages >= 1000) {
-					await addRole(user as SocketGuildUser, "I could write a novel", channelID);
-				} else if (userInfo.NumberOfMessages >= 100) {
-					await addRole(user as SocketGuildUser, "I'm liking this server", channelID);
-				} else if (userInfo.NumberOfMessages >= 1) {
-					await addRole(user as SocketGuildUser, "Hi and Welcome!", channelID);
-				}
-			} else {
-				await createUserInDatabase(user, channelID);
-			}
-		}
-
-		public async Task addRole(SocketGuildUser user, string roleName, ulong channelID) {
-			var userName = user as SocketUser;
-			var currentGuild = user.Guild as SocketGuild;
-			var role = currentGuild.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
-			if (!user.Roles.Contains(role)) {
-				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.addRole", $"{userName} has earned {roleName}"));
-				await (user as IGuildUser).AddRoleAsync(role);
-				SupportingMethods.updateArray("name", user.ToString(), "roles", role.ToString());
-				var channelName = client.GetChannel(channelID) as IMessageChannel;
-				await channelName.SendMessageAsync($"{userName} has earned **{role.Name}**");
-			}
-		}
+		}		
 	}
 }
