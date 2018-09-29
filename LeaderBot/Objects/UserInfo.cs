@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
-
+﻿
 namespace LeaderBot {
 	public class UserInfo {
 		public string Name { get; set; }
@@ -12,8 +6,10 @@ namespace LeaderBot {
 		public string DateJoined { get; set; }
 		public int NumberOfMessages { get; set; }
 		public int ReactionCount { get; set; }
-        public int Experience { get; set; }
-        public int Points { get; set; }
+		public int Experience { get; set; }
+		public int Points { get; set; }
+		public int WinCoinflipStreak { get; set; }
+		public int LoseCoinflipStreak { get; set; }
 		public string[] Roles { get; set; }
 
 		public UserInfo() { }

@@ -24,9 +24,9 @@ namespace LeaderBot {
 			client.MessageReceived += HandleCommandAsync;
 			client.ReactionAdded += ReactionAdded;
 
-        }
+		}
 
-        public async Task MainAsync() {
+		public async Task MainAsync() {
 			Console.WriteLine("Which bot to run: ");
 			string key = Console.ReadLine();
 			if (key.Equals("debug")) {
@@ -34,9 +34,9 @@ namespace LeaderBot {
 			}
 			string token = GetKey.getKey(key);
 
-            SupportingMethods.SetupMongoDatabase();
+			SupportingMethods.SetupMongoDatabase();
 			SupportingMethods.SetupMongoCollection("userData");
-            RoleCheck.setUpClient(client);
+			RoleCheck.setUpClient(client);
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
 			await client.LoginAsync(TokenType.Bot, token);
@@ -46,18 +46,17 @@ namespace LeaderBot {
 			await Task.Delay(-1);
 		}
 
-		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
-        {
-            var user = reaction.User.Value.ToString();
+		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
+			var user = reaction.User.Value.ToString();
 
-            SupportingMethods.updateDocument(user, "reactionCount", 1);
+			SupportingMethods.updateDocument(user, "reactionCount", 1);
 
-            await RoleCheck.reactionCountRoles(channel, reaction, user);
-        }
-
+			await RoleCheck.reactionCountRoles(channel, reaction, user);
+		}
 
 
-        private Task Log(LogMessage msg) {
+
+		private Task Log(LogMessage msg) {
 			Logger.Log(msg);
 			return Task.CompletedTask;
 		}
@@ -95,21 +94,19 @@ namespace LeaderBot {
 				var channelID = msg.Channel.Id;
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.HandleCommandAsync", $"HandleCommandAsync G: {guildName} C: {channelName} User: {userName}  Msg: {msg}"));
 
-                if (!msg.Author.IsBot)
-                {
-                    SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
-                    SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
-                    await RoleCheck.messageCountRoles(msg.Author, channelID);
-                    await RoleCheck.dateJoinedRoles(msg.Author, channelID);
-                }
-                if (msg.Author.Id == 181240813492109312)
-                {
-                    if (msg.MentionedUsers.ToList().Count >= 1){
-                        await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
-                    }
-                }
+				if (!msg.Author.IsBot) {
+					SupportingMethods.updateDocument(userName, "numberOfMessages", 1);
+					SupportingMethods.updateDocument(userName, "experience", msg.Content.Length);
+					await RoleCheck.messageCountRoles(msg.Author, channelID);
+					await RoleCheck.dateJoinedRoles(msg.Author, channelID);
+				}
+				if (msg.Author.Id == 181240813492109312) {
+					if (msg.MentionedUsers.ToList().Count >= 1) {
+						await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+					}
+				}
 
-                if (msg == null)
+				if (msg == null)
 					return;
 				else if (msg.HasCharPrefix(CommandPrefix, ref argPos)) {
 
@@ -125,6 +122,6 @@ namespace LeaderBot {
 			} catch (Exception e) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, $"{GetType().Name}.HandleCommandAsync", $"G:{guildName} C:{channelName} U:{userName} Unexpected Exception {e}", e));
 			}
-		}		
+		}
 	}
 }

@@ -54,7 +54,7 @@ namespace LeaderBot {
 
 		[Command("giveRole"), Summary("Adds role to specified user"), RequireUserPermission(GuildPermission.Administrator)]
 		public async Task giveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add")] string roleName) {
-			
+
 			var userInfo = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
 			var role = currentGuild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
@@ -82,5 +82,14 @@ namespace LeaderBot {
 			await Context.Guild.ReorderRolesAsync(sorting);
 			await ReplyAsync($"Roles have been reordered");
 		}
+
+		[Command("makeRole"), Summary("Creates a new role in the server"), RequireUserPermission(GuildPermission.Administrator)]
+		public async Task makeRoles(string name, string description, int difficulty) {
+			SupportingMethods.createRoleInDatabase(name, description, difficulty);
+			await ReplyAsync($"Role has been inserted into the database");
+			await createRoles();
+		}
+
+
 	}
 }

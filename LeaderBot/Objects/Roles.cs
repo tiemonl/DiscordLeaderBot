@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 namespace LeaderBot {
 	public class Roles {
 		public string Name { get; set; }

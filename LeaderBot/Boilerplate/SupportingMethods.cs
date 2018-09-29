@@ -37,7 +37,7 @@ namespace LeaderBot {
 		/// <param name="collectionName">Collection name in the MongoDB</param>
 		public static void SetupMongoDatabase() {
 			string connectionString = null;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				connectionString = "mongodb://localhost:27017";
 			else {
 				connectionString = Resources.mongoconnection;
@@ -76,7 +76,7 @@ namespace LeaderBot {
 		/// <param name="field">Field to update</param>
 		/// <param name="updateCount">the amount to increase the field by. Default is zero</param>
 		public static void updateDocument(string user, string field, int updateCount = 0) {
-			var filterUserName = filterDocumentByFieldCriteria("name",user);
+			var filterUserName = filterDocumentByFieldCriteria("name", user);
 			var update = new BsonDocument("$inc", new BsonDocument { { field, updateCount } });
 			Collection.FindOneAndUpdateAsync(filterUserName, update);
 		}
@@ -88,7 +88,7 @@ namespace LeaderBot {
 		/// <param name="user">User to get the information from</param>
 		public static UserInfo getUserInformation(string user) {
 			UserInfo userInformation = null;
-			var doc = findBsonDocumentByFieldCriteria("name",user);
+			var doc = findBsonDocumentByFieldCriteria("name", user);
 			if (doc != null) {
 				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
 				userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
@@ -145,7 +145,7 @@ namespace LeaderBot {
 			var user = userName as SocketGuildUser;
 			var date = user.JoinedAt.ToString();
 
-            var document = new BsonDocument
+			var document = new BsonDocument
 			{
 				{ "name", userName.ToString() },
 				{ "dateJoined",  date},
@@ -154,9 +154,23 @@ namespace LeaderBot {
 				{ "reactionCount",  0 },
 				{ "experience", 0 },
 				{ "points", 0 },
+				{ "winCoinflipStreak", 0 },
+				{ "loseCoinflipStreak", 0 },
 				{ "roles",  new BsonArray{ } }
 			};
 			Collection.InsertOneAsync(document);
+		}
+
+		public static void createRoleInDatabase(string name, string description, int difficulty) {
+			SetupMongoCollection("roles");
+			var document = new BsonDocument
+			{
+				{ "name", name },
+				{ "description",  description},
+				{ "difficulty", difficulty }
+			};
+			Collection.InsertOneAsync(document);
+			SetupMongoCollection("userData");
 		}
 
 		public static StringBuilder createLeaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
