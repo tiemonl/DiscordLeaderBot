@@ -90,6 +90,21 @@ namespace LeaderBot {
 			await createRoles();
 		}
 
+		[Command("rolesList"), Summary("prints role list"), RequireUserPermission(GuildPermission.Administrator)]
+		public async Task printRolesList() {
+			var allRoles = SupportingMethods.LoadAllRolesFromServer();
+			StringBuilder sb = new StringBuilder();
+			foreach (var role in allRoles) {
+				var embed = new EmbedBuilder();
+				Random r = new Random();
+				embed.WithTitle(role.Name);
+				embed.AddField("Description", role.Description);
+				embed.AddField("Difficulty", role.Difficulty);
+				embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
+				await ReplyAsync("", embed: embed);
+			}
+
+		}
 
 	}
 }

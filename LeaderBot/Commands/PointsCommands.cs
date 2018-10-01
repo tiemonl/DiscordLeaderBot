@@ -86,9 +86,9 @@ namespace LeaderBot.Commands {
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints * -1);
 						await ReplyAsync($"You lost! Losing streak: {userInfo.LoseCoinflipStreak + 1}\n{user} has {currentPoints - bettingPoints} points!");
 					}
-
+					await RoleCheck.coinflipRoles(userName, bettingPoints, win, Context.Message.Channel.Id);
 				}
-				await RoleCheck.coinflipRoles(userName, bettingPoints, win, Context.Message.Channel.Id);
+				
 
 			}
 		}
