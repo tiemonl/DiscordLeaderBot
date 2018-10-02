@@ -161,6 +161,31 @@ namespace LeaderBot {
 			Collection.InsertOneAsync(document);
 		}
 
+		//edit as needed
+		public static void updateDocumentField(string user, string field, int value){
+			var doc = findBsonDocumentByFieldCriteria("name", user);
+			if (!doc.Contains(field)){
+				var update = Builders<BsonDocument>.Update.Set(field, value);
+				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("name", user), update);
+			}
+		}
+
+
+		public static void createEquipmentInShop(string name, int atk, int def, int cost, int levelReq) {
+			SetupMongoCollection("shop");
+			var document = new BsonDocument
+			{
+				{ "_id", Collection.CountDocuments(new BsonDocument())+1 },
+				{ "name",  name},
+				{ "ATK", atk },
+				{ "DEF", def },
+				{ "cost",  cost },
+				{ "levelRequirement", levelReq }
+			};
+			Collection.InsertOneAsync(document);
+			SetupMongoCollection("userData");
+		}
+
 		public static void createRoleInDatabase(string name, string description, int difficulty) {
 			SetupMongoCollection("roles");
 			var document = new BsonDocument

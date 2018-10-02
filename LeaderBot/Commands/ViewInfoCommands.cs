@@ -100,13 +100,37 @@ namespace LeaderBot {
 		[Command("test"), Summary("Returns user experience")]
 		public async Task test() {
 			try {
-				var userName = ((SocketGuildUser)Context.Message.Author);
+				var userName = ((SocketGuildUser) Context.Message.Author);
 				var date = DateTime.Parse(userName.JoinedAt.ToString());
 				var today = DateTime.Now;
 				var daysInServer = today - date;
 				await ReplyAsync($"user joined {date}\nToday: {today}\nuser in server for {daysInServer.Days} days");
 			} catch (Exception ex) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".getExperience", "Unexpected Exception", ex));
+			}
+		}
+
+		[Command("createEquipment"), Summary("Returns user experience")]
+		public async Task createEquipment(string name, int atk, int def, int cost, int levelReq) {
+			try {
+				SupportingMethods.createEquipmentInShop(name, atk, def, cost, levelReq);
+				await ReplyAsync($"Equipment Created");
+			} catch (Exception ex) {
+				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
+			}
+		}
+
+		[Command("updateUserFields"), Summary("Returns user experience")]
+		public async Task updateUSersField(string field) {
+			try {
+				foreach (var user in await Context.Guild.GetUsersAsync()) {
+					if (!user.IsBot) {
+						SupportingMethods.updateDocumentField(user.ToString(), field, 0);
+					}
+				}
+				await ReplyAsync($"fields updated");
+			} catch (Exception ex) {
+				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
 			}
 		}
 
