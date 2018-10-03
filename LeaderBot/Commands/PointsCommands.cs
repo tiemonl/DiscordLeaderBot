@@ -39,7 +39,7 @@ namespace LeaderBot.Commands {
 		[Command("getPoints"), Summary("gets user total points")]
 		public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName = null) {
 			if (userName == null) {
-				userName = ((SocketGuildUser)Context.Message.Author);
+				userName = ((SocketGuildUser) Context.Message.Author);
 			}
 			var user = userName as SocketUser;
 			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
@@ -52,7 +52,7 @@ namespace LeaderBot.Commands {
 
 		[Command("bet"), Summary("bet with user total points")]
 		public async Task bet([Summary("Amount of points to bet")] int bettingPoints, [Summary("Side of coin picked.")] string coinSide) {
-			var userName = ((SocketGuildUser)Context.Message.Author);
+			var userName = ((SocketGuildUser) Context.Message.Author);
 			var user = userName as SocketUser;
 			bool win = false;
 			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
@@ -88,7 +88,7 @@ namespace LeaderBot.Commands {
 					}
 					await RoleCheck.coinflipRoles(userName, bettingPoints, win, Context.Message.Channel.Id);
 				}
-				
+
 
 			}
 		}

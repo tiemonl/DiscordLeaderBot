@@ -55,10 +55,10 @@ namespace LeaderBot {
 		[Command("missingRoles"), Summary("Gives a list of currently not attained roles")]
 		public async Task missingRoles() {
 			List<SocketRole> allGuildRoles = new List<SocketRole>();
-			foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles) {
+			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
 				allGuildRoles.Add(guildRoles);
 			}
-			foreach (SocketRole userRole in ((SocketGuildUser)Context.Message.Author).Roles) {
+			foreach (SocketRole userRole in ((SocketGuildUser) Context.Message.Author).Roles) {
 				if (allGuildRoles.Contains(userRole))
 					allGuildRoles.Remove(userRole);
 			}
@@ -82,7 +82,7 @@ namespace LeaderBot {
 			try {
 
 				if (userName == null) {
-					userName = ((SocketGuildUser)Context.Message.Author);
+					userName = ((SocketGuildUser) Context.Message.Author);
 				}
 				var user = userName as SocketUser;
 				UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
@@ -119,22 +119,5 @@ namespace LeaderBot {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
 			}
 		}
-
-		[Command("updateUserFields"), Summary("Returns user experience")]
-		public async Task updateUSersField(string field) {
-			try {
-				foreach (var user in await Context.Guild.GetUsersAsync()) {
-					if (!user.IsBot) {
-						SupportingMethods.updateDocumentField(user.ToString(), field, 0);
-					}
-				}
-				await ReplyAsync($"fields updated");
-			} catch (Exception ex) {
-				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
-			}
-		}
-
-
-
 	}
 }

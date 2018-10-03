@@ -21,7 +21,7 @@ namespace LeaderBot {
 		[Command("createRoles"), Summary("Creates a role in the guild")]
 		public async Task createRoles() {
 			List<string> currentGuildRoles = new List<string>();
-			foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles) {
+			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
 				currentGuildRoles.Add(guildRoles.Name);
 			}
 
@@ -42,7 +42,7 @@ namespace LeaderBot {
 				if (!user.IsBot) {
 					var userInfo = SupportingMethods.getUserInformation(user.ToString());
 
-					foreach (SocketRole userRole in ((SocketGuildUser)user).Roles) {
+					foreach (SocketRole userRole in ((SocketGuildUser) user).Roles) {
 						if (!userInfo.Roles.Contains(userRole.ToString()))
 							SupportingMethods.updateArray("name", user.ToString(), "roles", userRole.ToString());
 					}
@@ -104,6 +104,20 @@ namespace LeaderBot {
 				await ReplyAsync("", embed: embed);
 			}
 
+		}
+
+		[Command("updateUserFields"), Summary("Returns user experience")]
+		public async Task updateUSersField(int i, string field, string value) {
+			try {
+				//foreach (var user in await Context.Guild.GetUsersAsync()) {
+				//	if (!user.IsBot) {
+						SupportingMethods.updateDocumentField(i, field, value);
+				//	}
+				//}
+				await ReplyAsync($"fields updated");
+			} catch (Exception ex) {
+				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".updateUserFields", "Unexpected Exception", ex));
+			}
 		}
 
 	}

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Linq;
+using LeaderBot.Objects;
 
 namespace LeaderBot {
 	/// <summary>
@@ -56,7 +57,17 @@ namespace LeaderBot {
 			return result;
 		}
 
+		public static BsonDocument findBsonDocumentByFieldCriteria(string field, int criteria) {
+			var result = Collection.Find(filterDocumentByFieldCriteria(field, criteria)).FirstOrDefault();
+			return result;
+		}
+
 		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, string criteria) {
+			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
+			return filter;
+		}
+
+		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, int criteria) {
 			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
 			return filter;
 		}
@@ -97,6 +108,16 @@ namespace LeaderBot {
 				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(SupportingMethods).Name}.getUserInformation", "Could not find user!"));
 			}
 			return userInformation;
+		}
+
+		public static Shop getShopItem(int item){
+			Shop shopItem = null;
+			var doc = findBsonDocumentByFieldCriteria("_id", item);
+			if (doc != null) {
+				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
+				shopItem = JsonConvert.DeserializeObject<Shop>(jsonText);
+			}
+			return shopItem;
 		}
 
 		public static PointsReceived getPointsReceived(string field, string criteria) {
@@ -162,11 +183,12 @@ namespace LeaderBot {
 		}
 
 		//edit as needed
-		public static void updateDocumentField(string user, string field, int value){
-			var doc = findBsonDocumentByFieldCriteria("name", user);
-			if (!doc.Contains(field)){
-				var update = Builders<BsonDocument>.Update.Set(field, value);
-				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("name", user), update);
+		public static void updateDocumentField(int user, string field, string value) {
+			SetupMongoCollection("shop");
+			var doc = findBsonDocumentByFieldCriteria("_id", user);
+			if (doc.Contains(field)) {
+				var update = Builders<BsonDocument>.Update.Rename(field, value);
+				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("_id", user), update);
 			}
 		}
 
@@ -177,8 +199,8 @@ namespace LeaderBot {
 			{
 				{ "_id", Collection.CountDocuments(new BsonDocument())+1 },
 				{ "name",  name},
-				{ "ATK", atk },
-				{ "DEF", def },
+				{ "attack", atk },
+				{ "defence", def },
 				{ "cost",  cost },
 				{ "levelRequirement", levelReq }
 			};
