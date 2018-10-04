@@ -77,13 +77,15 @@ namespace LeaderBot.Commands {
 						result = "tails";
 						embed.WithThumbnailUrl("https://mbtskoudsalg.com/images/quarter-transparent-tail-1.png");
 					}
-					embed.AddInlineField("Result", result);
+					
 					if (SupportingMethods.stringEquals(result, coinSide)) {
 						win = true;
 						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.LoseCoinflipStreak * -1);
 						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", 1);
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints);
 						embed.WithColor(Color.Green);
+						embed.AddInlineField("Result", "Winner");
+						embed.AddInlineField("Coin side", result);
 						embed.AddInlineField("Winning streak", userInfo.WinCoinflipStreak + 1);
 						embed.AddInlineField("Total points", currentPoints + bettingPoints);
 					} else {
@@ -91,6 +93,8 @@ namespace LeaderBot.Commands {
 						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", 1);
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints * -1);
 						embed.WithColor(Color.Red);
+						embed.AddInlineField("Result", "Loser");
+						embed.AddInlineField("Coin side", result);
 						embed.AddInlineField("Losing streak", userInfo.LoseCoinflipStreak + 1);
 						embed.AddInlineField("Total points", currentPoints - bettingPoints);
 					}
