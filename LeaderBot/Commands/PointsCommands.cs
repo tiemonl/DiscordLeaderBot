@@ -55,6 +55,8 @@ namespace LeaderBot.Commands {
 			var userName = ((SocketGuildUser) Context.Message.Author);
 			var user = userName as SocketUser;
 			bool win = false;
+			var embed = new EmbedBuilder();
+			embed.WithTitle("Coin Toss");
 			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
 			if (userInfo != null) {
 				var currentPoints = userInfo.Points;
@@ -70,22 +72,29 @@ namespace LeaderBot.Commands {
 					string result = null;
 					if (num == 0) {
 						result = "heads";
+						embed.WithThumbnailUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/2006_Quarter_Proof.png/244px-2006_Quarter_Proof.png");
 					} else {
 						result = "tails";
+						embed.WithThumbnailUrl("https://mbtskoudsalg.com/images/quarter-transparent-tail-1.png");
 					}
-					await ReplyAsync($"Result: {result}");
+					embed.AddInlineField("Result", result);
 					if (SupportingMethods.stringEquals(result, coinSide)) {
 						win = true;
 						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.LoseCoinflipStreak * -1);
 						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", 1);
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints);
-						await ReplyAsync($"Congratulations, you won! Winning streak: {userInfo.WinCoinflipStreak + 1}\n{user} has {currentPoints + bettingPoints} points!");
+						embed.WithColor(Color.Green);
+						embed.AddInlineField("Winning streak", userInfo.WinCoinflipStreak + 1);
+						embed.AddInlineField("Total points", currentPoints + bettingPoints);
 					} else {
 						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", userInfo.WinCoinflipStreak * -1);
 						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", 1);
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints * -1);
-						await ReplyAsync($"You lost! Losing streak: {userInfo.LoseCoinflipStreak + 1}\n{user} has {currentPoints - bettingPoints} points!");
+						embed.WithColor(Color.Red);
+						embed.AddInlineField("Losing streak", userInfo.LoseCoinflipStreak + 1);
+						embed.AddInlineField("Total points", currentPoints - bettingPoints);
 					}
+					await ReplyAsync("", embed: embed);
 					await RoleCheck.coinflipRoles(userName, bettingPoints, win, Context.Message.Channel.Id);
 				}
 
