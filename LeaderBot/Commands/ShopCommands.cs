@@ -23,6 +23,7 @@ namespace LeaderBot.Commands {
 			embed.AddInlineField("Level Requirement", shopItem.LevelRequirement);
 			embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
 			await ReplyAsync("", embed: embed);
+			SupportingMethods.SetupMongoCollection("userData");
 		}
 	}
 }

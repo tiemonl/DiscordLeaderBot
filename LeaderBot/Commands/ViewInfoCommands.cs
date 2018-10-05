@@ -77,7 +77,7 @@ namespace LeaderBot {
 			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}\n\t-Difficulty: {role.Difficulty}");
 		}
 
-		[Command("getExperience"), Summary("Returns user experience")]
+		[Command("getExperience"), Summary("Returns user experience"), Alias("getexp")]
 		public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser userName = null) {
 			try {
 

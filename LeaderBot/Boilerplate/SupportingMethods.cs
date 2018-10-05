@@ -39,7 +39,7 @@ namespace LeaderBot {
 		public static void SetupMongoDatabase() {
 			string connectionString = null;
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-				connectionString = "mongodb://localhost:27017";
+				connectionString = Resources.mongoconnectionserver;
 			else {
 				connectionString = Resources.mongoconnection;
 			}
