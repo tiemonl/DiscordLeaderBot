@@ -23,7 +23,7 @@ namespace LeaderBot.Commands {
 			if (users.Contains(user.ToString())) {
 				TimeSpan untilReset = DateTime.Today.AddDays(1) - DateTime.Now;
 				SupportingMethods.SetupMongoCollection("userData");
-				await ReplyAsync($"{user} has already reclaimed the daily points.\nClaim points in {untilReset.Hours}:{untilReset.Minutes}");
+				await ReplyAsync($"{user} has already reclaimed the daily points.\nClaim points in {untilReset.Hours}h {untilReset.Minutes}m");
 			} else {
 				SupportingMethods.updateArray("date", currentDate, "users", user.ToString());
 				SupportingMethods.SetupMongoCollection("userData");
