@@ -11,6 +11,8 @@ namespace LeaderBot {
 		public int WinCoinflipStreak { get; set; }
 		public int LoseCoinflipStreak { get; set; }
 		public string[] Roles { get; set; }
+		public int TotalAttack { get; set; }
+		public int TotalDefense { get; set; }
 
 		public UserInfo() { }
 	}

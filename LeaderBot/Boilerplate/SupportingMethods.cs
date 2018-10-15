@@ -177,7 +177,9 @@ namespace LeaderBot {
 				{ "points", 0 },
 				{ "winCoinflipStreak", 0 },
 				{ "loseCoinflipStreak", 0 },
-				{ "roles",  new BsonArray{ } }
+				{ "roles",  new BsonArray{ } },
+				{ "totalAttack", 0 },
+				{ "totalDefense", 0 }
 			};
 			Collection.InsertOneAsync(document);
 		}

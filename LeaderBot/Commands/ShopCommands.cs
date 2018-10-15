@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using LeaderBot.Objects;
+using Discord.WebSocket;
 
 namespace LeaderBot.Commands {
 	[Group("shop")]
@@ -16,7 +17,6 @@ namespace LeaderBot.Commands {
 			var embed = new EmbedBuilder();
 			Random r = new Random();
 			embed.WithTitle(shopItem.Name);
-			embed.WithImageUrl("https://i.etsystatic.com/13065784/r/il/2b3688/1058345301/il_570xN.1058345301_cbw9.jpg");
 			embed.AddInlineField("Attack", shopItem.Attack);
 			embed.AddInlineField("Defence", shopItem.Defence);
 			embed.AddInlineField("Cost", shopItem.Cost);
@@ -24,6 +24,30 @@ namespace LeaderBot.Commands {
 			embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
 			await ReplyAsync("", embed: embed);
 			SupportingMethods.SetupMongoCollection("userData");
+		}
+
+		[Command("buy")]
+		public async Task buyItemFromShop(int item) {
+			var userName = ((SocketGuildUser)Context.Message.Author);
+			SupportingMethods.SetupMongoCollection("shop");
+			Shop shopItem = SupportingMethods.getShopItem(item);
+			SupportingMethods.SetupMongoCollection("userData");
+			UserInfo userInfo = SupportingMethods.getUserInformation(userName.ToString());
+			var embed = new EmbedBuilder();
+			Random r = new Random();
+			if (userInfo.Points < shopItem.Cost) {
+				await ReplyAsync($"User does not have enough points to buy item.");
+			} else {
+				SupportingMethods.updateDocument(userName.ToString(), "points", shopItem.Cost*-1);
+				SupportingMethods.updateDocument(userName.ToString(), "totalAttack", shopItem.Attack);
+				SupportingMethods.updateDocument(userName.ToString(), "totalDefense", shopItem.Defence);
+				embed.WithTitle("Item bought!");
+				embed.WithThumbnailUrl(userName.GetAvatarUrl());
+				embed.AddInlineField("Attack", userInfo.TotalAttack + shopItem.Attack);
+				embed.AddInlineField("Defense", userInfo.TotalDefense + shopItem.Defence);
+				embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
+				await ReplyAsync("", embed: embed);
+			}
 		}
 	}
 }
