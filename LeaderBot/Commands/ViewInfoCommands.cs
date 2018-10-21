@@ -119,5 +119,16 @@ namespace LeaderBot {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
 			}
 		}
+
+		[Command("getstats"), Summary("Returns user experience")]
+		public async Task getStats() {
+			var userName = ((SocketGuildUser)Context.Message.Author);
+			UserInfo info = SupportingMethods.getUserInformation(userName.ToString());
+			StringBuilder sb = new StringBuilder();
+			sb.Append($"{userName}'s stats\n");
+			sb.Append($"\t-**Attack**: {info.TotalAttack}\n");
+			sb.Append($"\t-**Defense**: {info.TotalDefense}");
+			await ReplyAsync(sb.ToString());
+		}
 	}
 }
