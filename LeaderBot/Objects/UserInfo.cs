@@ -1,18 +1,21 @@
 ﻿
+using MongoDB.Bson;
+
 namespace LeaderBot {
 	public class UserInfo {
-		public string Name { get; set; }
-		public bool IsBetaTester { get; set; }
-		public string DateJoined { get; set; }
-		public int NumberOfMessages { get; set; }
-		public int ReactionCount { get; set; }
-		public int Experience { get; set; }
-		public int Points { get; set; }
-		public int WinCoinflipStreak { get; set; }
-		public int LoseCoinflipStreak { get; set; }
-		public string[] Roles { get; set; }
-		public int TotalAttack { get; set; }
-		public int TotalDefense { get; set; }
+		public long _id { get; set; }
+		public string name { get; set; }
+		public bool isBetaTester { get; set; }
+		public string dateJoined { get; set; }
+		public int numberOfMessages { get; set; }
+		public int reactionCount { get; set; }
+		public int experience { get; set; }
+		public int points { get; set; }
+		public int winCoinflipStreak { get; set; }
+		public int loseCoinflipStreak { get; set; }
+		public string[] roles { get; set; }
+		public int totalAttack { get; set; }
+		public int totalDefense { get; set; }
 
 		public UserInfo() { }
 	}

@@ -87,7 +87,7 @@ namespace LeaderBot {
 				var user = userName as SocketUser;
 				UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
 				if (userInfo != null) {
-					var currentExp = userInfo.Experience;
+					var currentExp = userInfo.experience;
 					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
 					await ReplyAsync($"{user} has {currentExp} experience and is level {level}");
 
@@ -126,8 +126,8 @@ namespace LeaderBot {
 			UserInfo info = SupportingMethods.getUserInformation(userName.ToString());
 			StringBuilder sb = new StringBuilder();
 			sb.Append($"{userName}'s stats\n");
-			sb.Append($"\t-**Attack**: {info.TotalAttack}\n");
-			sb.Append($"\t-**Defense**: {info.TotalDefense}");
+			sb.Append($"\t-**Attack**: {info.totalAttack}\n");
+			sb.Append($"\t-**Defense**: {info.totalDefense}");
 			await ReplyAsync(sb.ToString());
 		}
 	}

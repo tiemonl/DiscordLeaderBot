@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Linq;
 using LeaderBot.Objects;
+using MongoDB.Bson.Serialization;
 
 namespace LeaderBot {
 	/// <summary>
@@ -99,11 +100,10 @@ namespace LeaderBot {
 		/// <param name="user">User to get the information from</param>
 		public static UserInfo getUserInformation(string user) {
 			UserInfo userInformation = null;
+
 			var doc = findBsonDocumentByFieldCriteria("name", user);
 			if (doc != null) {
-				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
-				userInformation = JsonConvert.DeserializeObject<UserInfo>(jsonText);
-
+				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
 			} else {
 				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(SupportingMethods).Name}.getUserInformation", "Could not find user!"));
 			}
@@ -165,9 +165,9 @@ namespace LeaderBot {
 		public static void createUserInDatabase(SocketUser userName) {
 			var user = userName as SocketGuildUser;
 			var date = user.JoinedAt.ToString();
-
 			var document = new BsonDocument
 			{
+				{"_id", (long)user.Id},
 				{ "name", userName.ToString() },
 				{ "dateJoined",  date},
 				{ "numberOfMessages", 0 },
@@ -185,12 +185,11 @@ namespace LeaderBot {
 		}
 
 		//edit as needed
-		public static void updateDocumentField(int user, string field, string value) {
-			SetupMongoCollection("shop");
-			var doc = findBsonDocumentByFieldCriteria("_id", user);
-			if (doc.Contains(field)) {
-				var update = Builders<BsonDocument>.Update.Rename(field, value);
-				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("_id", user), update);
+		public static void updateDocumentField(string user, string field, BsonArray value) {
+			var doc = findBsonDocumentByFieldCriteria("name", user);
+			if (doc != null) {
+				var update = Builders<BsonDocument>.Update.Set(field, value);
+				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("name", user), update);
 			}
 		}
 
@@ -236,15 +235,15 @@ namespace LeaderBot {
 					UserInfo userInfo = getUserInformation(userName.ToString());
 					if (userInfo != null) {
 						if (leaderboardName.Equals("Experience")) {
-							allUsers.Add(user as SocketGuildUser, userInfo.Experience);
+							allUsers.Add(user as SocketGuildUser, userInfo.experience);
 						} else if (leaderboardName.Equals("Roles")) {
-							allUsers.Add(user as SocketGuildUser, userInfo.Roles.Length - 1); //-1: remove @everyone
+							allUsers.Add(user as SocketGuildUser, userInfo.roles.Length - 1); //-1: remove @everyone
 						} else if (leaderboardName.Equals("Points")) {
-							allUsers.Add(user as SocketGuildUser, userInfo.Points);
+							allUsers.Add(user as SocketGuildUser, userInfo.points);
 						} else if (leaderboardName.Equals("Messages")) {
-							allUsers.Add(user as SocketGuildUser, userInfo.NumberOfMessages);
+							allUsers.Add(user as SocketGuildUser, userInfo.numberOfMessages);
 						} else if (leaderboardName.Equals("Reactions")) {
-							allUsers.Add(user as SocketGuildUser, userInfo.ReactionCount);
+							allUsers.Add(user as SocketGuildUser, userInfo.reactionCount);
 						}
 					}
 				}

@@ -8,6 +8,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 using System.Text;
+using MongoDB.Bson;
 
 namespace LeaderBot {
 	[Group("admin")]
@@ -43,7 +44,7 @@ namespace LeaderBot {
 					var userInfo = SupportingMethods.getUserInformation(user.ToString());
 
 					foreach (SocketRole userRole in ((SocketGuildUser) user).Roles) {
-						if (!userInfo.Roles.Contains(userRole.ToString()))
+						if (!userInfo.roles.Contains(userRole.ToString()))
 							SupportingMethods.updateArray("name", user.ToString(), "roles", userRole.ToString());
 					}
 					sb.Append($"{user} updated.\n");
@@ -107,13 +108,13 @@ namespace LeaderBot {
 		}
 
 		[Command("updateUserFields"), Summary("Returns user experience")]
-		public async Task updateUSersField(int i, string field, string value) {
+		public async Task updateUSersField(string field) {
 			try {
-				//foreach (var user in await Context.Guild.GetUsersAsync()) {
-				//	if (!user.IsBot) {
-						SupportingMethods.updateDocumentField(i, field, value);
-				//	}
-				//}
+				foreach (var user in await Context.Guild.GetUsersAsync()) {
+					if (!user.IsBot) {
+						SupportingMethods.updateDocumentField(user.ToString(), field, new BsonArray { });
+					}
+				}
 				await ReplyAsync($"fields updated");
 			} catch (Exception ex) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".updateUserFields", "Unexpected Exception", ex));

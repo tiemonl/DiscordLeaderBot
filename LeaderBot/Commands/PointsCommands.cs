@@ -44,7 +44,7 @@ namespace LeaderBot.Commands {
 			var user = userName as SocketUser;
 			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
 			if (userInfo != null) {
-				var currentPoints = userInfo.Points;
+				var currentPoints = userInfo.points;
 				await ReplyAsync($"{user} has {currentPoints} points!");
 
 			}
@@ -59,7 +59,7 @@ namespace LeaderBot.Commands {
 			embed.WithTitle("Coin Toss");
 			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
 			if (userInfo != null) {
-				var currentPoints = userInfo.Points;
+				var currentPoints = userInfo.points;
 				if (bettingPoints > currentPoints) {
 					await ReplyAsync($"{user} has {currentPoints} points! You cannot bet {bettingPoints}!");
 				} else if (bettingPoints < 50) {
@@ -80,22 +80,22 @@ namespace LeaderBot.Commands {
 					
 					if (SupportingMethods.stringEquals(result, coinSide)) {
 						win = true;
-						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.LoseCoinflipStreak * -1);
+						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.loseCoinflipStreak * -1);
 						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", 1);
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints);
 						embed.WithColor(Color.Green);
 						embed.AddInlineField("Result", "Winner");
 						embed.AddInlineField("Coin side", result);
-						embed.AddInlineField("Winning streak", userInfo.WinCoinflipStreak + 1);
+						embed.AddInlineField("Winning streak", userInfo.winCoinflipStreak + 1);
 						embed.AddInlineField("Total points", currentPoints + bettingPoints);
 					} else {
-						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", userInfo.WinCoinflipStreak * -1);
+						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
 						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", 1);
 						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints * -1);
 						embed.WithColor(Color.Red);
 						embed.AddInlineField("Result", "Loser");
 						embed.AddInlineField("Coin side", result);
-						embed.AddInlineField("Losing streak", userInfo.LoseCoinflipStreak + 1);
+						embed.AddInlineField("Losing streak", userInfo.loseCoinflipStreak + 1);
 						embed.AddInlineField("Total points", currentPoints - bettingPoints);
 					}
 					await ReplyAsync("", embed: embed);

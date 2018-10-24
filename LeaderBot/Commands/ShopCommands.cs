@@ -35,7 +35,7 @@ namespace LeaderBot.Commands {
 			UserInfo userInfo = SupportingMethods.getUserInformation(userName.ToString());
 			var embed = new EmbedBuilder();
 			Random r = new Random();
-			if (userInfo.Points < shopItem.Cost) {
+			if (userInfo.points < shopItem.Cost) {
 				await ReplyAsync($"User does not have enough points to buy item.");
 			} else {
 				SupportingMethods.updateDocument(userName.ToString(), "points", shopItem.Cost*-1);
@@ -43,8 +43,8 @@ namespace LeaderBot.Commands {
 				SupportingMethods.updateDocument(userName.ToString(), "totalDefense", shopItem.Defence);
 				embed.WithTitle("Item bought!");
 				embed.WithThumbnailUrl(userName.GetAvatarUrl());
-				embed.AddInlineField("Attack", userInfo.TotalAttack + shopItem.Attack);
-				embed.AddInlineField("Defense", userInfo.TotalDefense + shopItem.Defence);
+				embed.AddInlineField("Attack", userInfo.totalAttack + shopItem.Attack);
+				embed.AddInlineField("Defense", userInfo.totalDefense + shopItem.Defence);
 				embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
 				await ReplyAsync("", embed: embed);
 			}
