@@ -101,7 +101,7 @@ namespace LeaderBot {
 					await RoleCheck.messageCountRoles(msg.Author, channelID);
 					await RoleCheck.dateJoinedRoles(msg.Author, channelID);
 				}
-				if (msg.Author.Id == 181240813492109312) {
+				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
 					if (msg.MentionedUsers.ToList().Count >= 1) {
 						await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
 					}
