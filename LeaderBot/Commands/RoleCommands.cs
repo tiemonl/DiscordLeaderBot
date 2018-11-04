@@ -121,5 +121,16 @@ namespace LeaderBot {
 			}
 		}
 
+		[Command("givePoints"), Summary("give specificed user points")]
+		public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
+			var user = userName as SocketUser;
+			SupportingMethods.updateDocument(user.ToString(), "points", points);
+			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
+			if (userInfo != null) {
+				var currentPoints = userInfo.points;
+				await ReplyAsync($"{user} has {currentPoints} points!");
+
+			}
+		}
 	}
 }
