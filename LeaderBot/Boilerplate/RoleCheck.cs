@@ -109,7 +109,8 @@ namespace LeaderBot {
 				await (user as IGuildUser).AddRoleAsync(role);
 				SupportingMethods.updateArray("name", user.ToString(), "roles", role.ToString());
 				var channelName = client.GetChannel(channelID) as IMessageChannel;
-				await channelName.SendMessageAsync($"{userName} has earned **{role.Name}**");
+				if(role.Name != "???")
+					await channelName.SendMessageAsync($"{userName} has earned **{role.Name}**");
 			}
 		}
 
