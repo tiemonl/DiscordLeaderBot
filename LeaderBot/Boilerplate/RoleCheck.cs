@@ -116,7 +116,7 @@ namespace LeaderBot {
 
 		public static bool doesUserHaveRole(SocketGuildUser user, string roleName) {
 			bool result = false;
-			var role = user.Roles.FirstOrDefault(x => x.Name == roleName);
+			var role = user.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
 			if (user.Roles.Contains(role)) {
 				result = true;
 			}
