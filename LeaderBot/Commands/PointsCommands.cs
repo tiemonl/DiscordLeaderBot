@@ -9,6 +9,7 @@ using LeaderBot.Points;
 
 namespace LeaderBot.Commands {
 	public class PointsCommands : ModuleBase {
+         const int MIN_DAILY_POINTS = 100;         const int MAX_DAILY_POINTS = 250; 
 		public PointsCommands() {
 		}
 
@@ -28,8 +29,9 @@ namespace LeaderBot.Commands {
 				SupportingMethods.updateArray("date", currentDate, "users", user.ToString());
 				SupportingMethods.SetupMongoCollection("userData");
 				Random rand = new Random();
-				var points = rand.Next(100, 250);
-				SupportingMethods.updateDocument(user.ToString(), "points", points);
+				var points = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
+                var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);                 if (points.Equals(jackpot))                 {                     points *= 10;                     await RoleCheck.addRole(user as SocketGuildUser, "Jackpot!", Context.Message.Channel.Id);                     await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");                 }
+                SupportingMethods.updateDocument(user.ToString(), "points", points);
 
 				await ReplyAsync($"{user} earned {points} points!");
 			}
