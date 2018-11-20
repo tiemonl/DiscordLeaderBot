@@ -11,7 +11,7 @@ using MongoDB.Driver;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
-		SupportingMethods methods = new SupportingMethods();
+		Util methods = new Util();
 
 		public ViewInfoCommands() {
 		}
@@ -71,9 +71,9 @@ namespace LeaderBot {
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
 		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
-			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
-			var allRoles = SupportingMethods.LoadAllRolesFromServer();
-			var role = allRoles.Find(x => SupportingMethods.stringEquals(x.Name, selectedRole.Name));
+			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
+			var allRoles = Util.LoadAllRolesFromServer();
+			var role = allRoles.Find(x => Util.stringEquals(x.Name, selectedRole.Name));
 			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}\n\t-Difficulty: {role.Difficulty}");
 		}
 
@@ -85,7 +85,7 @@ namespace LeaderBot {
 					userName = ((SocketGuildUser) Context.Message.Author);
 				}
 				var user = userName as SocketUser;
-				UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
+				UserInfo userInfo = Util.getUserInformation(user.ToString());
 				if (userInfo != null) {
 					var currentExp = userInfo.experience;
 					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
@@ -113,7 +113,7 @@ namespace LeaderBot {
 		[Command("createEquipment"), Summary("Returns user experience")]
 		public async Task createEquipment(string name, int atk, int def, int cost, int levelReq) {
 			try {
-				SupportingMethods.createEquipmentInShop(name, atk, def, cost, levelReq);
+				Util.createEquipmentInShop(name, atk, def, cost, levelReq);
 				await ReplyAsync($"Equipment Created");
 			} catch (Exception ex) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
@@ -123,7 +123,7 @@ namespace LeaderBot {
 		[Command("getstats"), Summary("Returns user experience")]
 		public async Task getStats() {
 			var userName = ((SocketGuildUser)Context.Message.Author);
-			UserInfo info = SupportingMethods.getUserInformation(userName.ToString());
+			UserInfo info = Util.getUserInformation(userName.ToString());
 			StringBuilder sb = new StringBuilder();
 			sb.Append($"{userName}'s stats\n");
 			sb.Append($"\t-**Attack**: {info.totalAttack}\n");

@@ -6,6 +6,5 @@ using Discord;
 namespace LeaderBot {
 	class Program {
 		static void Main(string[] args) => new LeaderBot().MainAsync().GetAwaiter().GetResult();
-		//sneaky edit
 	}
 }

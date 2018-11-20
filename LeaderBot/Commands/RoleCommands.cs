@@ -26,7 +26,7 @@ namespace LeaderBot {
 				currentGuildRoles.Add(guildRoles.Name);
 			}
 
-			foreach (var role in SupportingMethods.LoadAllRolesFromServer()) {
+			foreach (var role in Util.LoadAllRolesFromServer()) {
 				if (!currentGuildRoles.Contains(role.Name)) {
 					var randColor = new Color(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
 					await Context.Guild.CreateRoleAsync(role.Name, GuildPermissions.None, randColor);
@@ -41,11 +41,11 @@ namespace LeaderBot {
 			StringBuilder sb = new StringBuilder();
 			foreach (var user in (await Context.Guild.GetUsersAsync())) {
 				if (!user.IsBot) {
-					var userInfo = SupportingMethods.getUserInformation(user.ToString());
+					var userInfo = Util.getUserInformation(user.ToString());
 
 					foreach (SocketRole userRole in ((SocketGuildUser) user).Roles) {
 						if (!userInfo.roles.Contains(userRole.ToString()))
-							SupportingMethods.updateArray("name", user.ToString(), "roles", userRole.ToString());
+							Util.updateArray("name", user.ToString(), "roles", userRole.ToString());
 					}
 					sb.Append($"{user} updated.\n");
 				}
@@ -59,7 +59,7 @@ namespace LeaderBot {
 			var userInfo = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
 			var role = currentGuild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
-			SupportingMethods.updateArray("name", user.ToString(), "roles", role.ToString());
+			Util.updateArray("name", user.ToString(), "roles", role.ToString());
 			await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".addRole", userInfo.ToString() + " added role " + role.ToString()));
 			await (userInfo as IGuildUser).AddRoleAsync(role);
 			await ReplyAsync($"{userInfo} now has {role}");
@@ -67,7 +67,7 @@ namespace LeaderBot {
 
 		[Command("reorderRoles"), Summary("Reorders roles based on difficulty"), RequireUserPermission(GuildPermission.Administrator)]
 		public async Task reorderRoles() {
-			var allRoles = SupportingMethods.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Select(x => x.Name).ToList();
+			var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Select(x => x.Name).ToList();
 			var allGuildRoles = Context.Guild.Roles.OrderBy(y => allRoles.IndexOf(y.Name)).ToList();
 
 			//reorder leaderbot roles to be at the top for hierarchy purposes
@@ -86,14 +86,14 @@ namespace LeaderBot {
 
 		[Command("makeRole"), Summary("Creates a new role in the server"), RequireUserPermission(GuildPermission.Administrator)]
 		public async Task makeRoles(string name, string description, int difficulty) {
-			SupportingMethods.createRoleInDatabase(name, description, difficulty);
+			Util.createRoleInDatabase(name, description, difficulty);
 			await ReplyAsync($"Role has been inserted into the database");
 			await createRoles();
 		}
 
 		[Command("rolesList"), Summary("prints role list"), RequireUserPermission(GuildPermission.Administrator)]
 		public async Task printRolesList() {
-			var allRoles = SupportingMethods.LoadAllRolesFromServer();
+			var allRoles = Util.LoadAllRolesFromServer();
 			StringBuilder sb = new StringBuilder();
 			foreach (var role in allRoles) {
 				var embed = new EmbedBuilder();
@@ -112,7 +112,7 @@ namespace LeaderBot {
 			try {
 				foreach (var user in await Context.Guild.GetUsersAsync()) {
 					if (!user.IsBot) {
-						SupportingMethods.updateDocumentField(user.ToString(), field, new BsonArray { });
+						Util.updateDocumentField(user.ToString(), field, new BsonArray { });
 					}
 				}
 				await ReplyAsync($"fields updated");
@@ -124,8 +124,8 @@ namespace LeaderBot {
 		[Command("givePoints"), Summary("give specificed user points")]
 		public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
 			var user = userName as SocketUser;
-			SupportingMethods.updateDocument(user.ToString(), "points", points);
-			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
+			Util.updateDocument(user.ToString(), "points", points);
+			UserInfo userInfo = Util.getUserInformation(user.ToString());
 			if (userInfo != null) {
 				var currentPoints = userInfo.points;
 				await ReplyAsync($"{user} has {currentPoints} points!");

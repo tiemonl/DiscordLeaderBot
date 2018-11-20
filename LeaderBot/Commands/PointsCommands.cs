@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using LeaderBot.Points;
 
 namespace LeaderBot.Commands {
 	public class PointsCommands : ModuleBase {
@@ -16,19 +15,19 @@ namespace LeaderBot.Commands {
 
 		[Command("dailyPoints"), Summary("Adds points to user")]
 		public async Task dailyPoints() {
-			SupportingMethods.SetupMongoCollection("pointsReceived");
+			Util.SetupMongoCollection("pointsReceived");
 			string currentDate = DateTime.Now.ToString("yyyyMMdd");
-			PointsReceived pointsReceived = SupportingMethods.getPointsReceived("date", currentDate);
+			PointsReceived pointsReceived = Util.getPointsReceived("date", currentDate);
 			var user = Context.Message.Author;
 			List<string> users = pointsReceived.Users.ToList();
 
 			if (users.Contains(user.ToString())) {
 				TimeSpan untilReset = DateTime.Today.AddDays(1) - DateTime.Now;
-				SupportingMethods.SetupMongoCollection("userData");
+				Util.SetupMongoCollection("userData");
 				await ReplyAsync($"{user} has already reclaimed the daily points.\nClaim points in {untilReset.Hours}h {untilReset.Minutes}m");
 			} else {
-				SupportingMethods.updateArray("date", currentDate, "users", user.ToString());
-				SupportingMethods.SetupMongoCollection("userData");
+				Util.updateArray("date", currentDate, "users", user.ToString());
+				Util.SetupMongoCollection("userData");
 				Random rand = new Random();
 				var points = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
 				var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
@@ -37,7 +36,7 @@ namespace LeaderBot.Commands {
 					await RoleCheck.addRole(user as SocketGuildUser, "Jackpot!", Context.Message.Channel.Id);
 					await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
 				}
-				SupportingMethods.updateDocument(user.ToString(), "points", points);
+				Util.updateDocument(user.ToString(), "points", points);
 
 				await ReplyAsync($"{user} earned {points} points!");
 			}
@@ -50,7 +49,7 @@ namespace LeaderBot.Commands {
 				userName = ((SocketGuildUser) Context.Message.Author);
 			}
 			var user = userName as SocketUser;
-			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
+			UserInfo userInfo = Util.getUserInformation(user.ToString());
 			if (userInfo != null) {
 				var currentPoints = userInfo.points;
 				await ReplyAsync($"{user} has {currentPoints} points!");
@@ -65,14 +64,14 @@ namespace LeaderBot.Commands {
 			bool win = false;
 			var embed = new EmbedBuilder();
 			embed.WithTitle("Coin Toss");
-			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
+			UserInfo userInfo = Util.getUserInformation(user.ToString());
 			if (userInfo != null) {
 				var currentPoints = userInfo.points;
 				if (bettingPoints > currentPoints) {
 					await ReplyAsync($"{user} has {currentPoints} points! You cannot bet {bettingPoints}!");
 				} else if (bettingPoints < 50) {
 					await ReplyAsync($"Minimum bet is 50 points");
-				} else if (!(SupportingMethods.stringEquals("heads", coinSide) || SupportingMethods.stringEquals("tails", coinSide))) {
+				} else if (!(Util.stringEquals("heads", coinSide) || Util.stringEquals("tails", coinSide))) {
 					await ReplyAsync($"Coin sides are ***heads*** or ***tails***.");
 				} else {
 					Random rand = new Random();
@@ -86,20 +85,20 @@ namespace LeaderBot.Commands {
 						embed.WithThumbnailUrl("https://mbtskoudsalg.com/images/quarter-transparent-tail-1.png");
 					}
 					
-					if (SupportingMethods.stringEquals(result, coinSide)) {
+					if (Util.stringEquals(result, coinSide)) {
 						win = true;
-						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.loseCoinflipStreak * -1);
-						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", 1);
-						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints);
+						Util.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.loseCoinflipStreak * -1);
+						Util.updateDocument(userName.ToString(), "winCoinflipStreak", 1);
+						Util.updateDocument(userName.ToString(), "points", bettingPoints);
 						embed.WithColor(Color.Green);
 						embed.AddInlineField("Result", "Winner");
 						embed.AddInlineField("Coin side", result);
 						embed.AddInlineField("Winning streak", userInfo.winCoinflipStreak + 1);
 						embed.AddInlineField("Total points", currentPoints + bettingPoints);
 					} else {
-						SupportingMethods.updateDocument(userName.ToString(), "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
-						SupportingMethods.updateDocument(userName.ToString(), "loseCoinflipStreak", 1);
-						SupportingMethods.updateDocument(userName.ToString(), "points", bettingPoints * -1);
+						Util.updateDocument(userName.ToString(), "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
+						Util.updateDocument(userName.ToString(), "loseCoinflipStreak", 1);
+						Util.updateDocument(userName.ToString(), "points", bettingPoints * -1);
 						embed.WithColor(Color.Red);
 						embed.AddInlineField("Result", "Loser");
 						embed.AddInlineField("Coin side", result);
