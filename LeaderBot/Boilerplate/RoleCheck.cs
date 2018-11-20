@@ -16,7 +16,7 @@ namespace LeaderBot {
 		}
 
 		public static async Task reactionCountRoles(ISocketMessageChannel channel, SocketReaction reaction, string user) {
-			UserInfo userInfo = SupportingMethods.getUserInformation(user);
+			UserInfo userInfo = Util.getUserInformation(user);
 			if (userInfo != null) {
 				if (userInfo.reactionCount >= 250 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Major reaction")) {
 					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
@@ -33,7 +33,7 @@ namespace LeaderBot {
 		}
 
 		public static async Task coinflipRoles(SocketGuildUser user, int bet, bool win, ulong channelID) {
-			UserInfo userInfo = SupportingMethods.getUserInformation(user.ToString());
+			UserInfo userInfo = Util.getUserInformation(user.ToString());
 			if (userInfo != null) {
 				if (bet >= 5000) {
 					if (win) {
@@ -55,7 +55,7 @@ namespace LeaderBot {
 		public static async Task dateJoinedRoles(SocketUser user, ulong channelID) {
 			string userName = user.ToString();
 			var userGuild = user as SocketGuildUser;
-			UserInfo userInfo = SupportingMethods.getUserInformation(userName);
+			UserInfo userInfo = Util.getUserInformation(userName);
 			if (userInfo != null) {
 				DateTime dateJoined = DateTime.Parse(userInfo.dateJoined);
 				TimeSpan daysInServer = DateTime.Now - dateJoined;
@@ -76,7 +76,7 @@ namespace LeaderBot {
 		}
 		public static async Task messageCountRoles(SocketUser user, ulong channelID) {
 			string userName = user.ToString();
-			UserInfo userInfo = SupportingMethods.getUserInformation(userName);
+			UserInfo userInfo = Util.getUserInformation(userName);
 			if (userInfo != null) {
 				if (userInfo.isBetaTester) {
 					await addRole(user as SocketGuildUser, "Beta Tester", channelID);
@@ -96,18 +96,18 @@ namespace LeaderBot {
 		}
 
 		public static async Task createUserInDatabase(SocketUser userName, ulong id) {
-			SupportingMethods.createUserInDatabase(userName);
+			Util.createUserInDatabase(userName);
 			await addRole(userName as SocketGuildUser, "Family", id);
 		}
 
 		public static async Task addRole(SocketGuildUser user, string roleName, ulong channelID) {
 			var userName = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
-			var role = currentGuild.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
+			var role = currentGuild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
 			if (!user.Roles.Contains(role)) {
-				await Logger.Log(new LogMessage(LogSeverity.Info, $"{typeof(SupportingMethods).Name}.addRole", $"{userName} has earned {roleName}"));
+				await Logger.Log(new LogMessage(LogSeverity.Info, $"{typeof(Util).Name}.addRole", $"{userName} has earned {roleName}"));
 				await (user as IGuildUser).AddRoleAsync(role);
-				SupportingMethods.updateArray("name", user.ToString(), "roles", role.ToString());
+				Util.updateArray("name", user.ToString(), "roles", role.ToString());
 				var channelName = client.GetChannel(channelID) as IMessageChannel;
 				if(role.Name != "???")
 					await channelName.SendMessageAsync($"{userName} has earned **{role.Name}**");
@@ -116,7 +116,7 @@ namespace LeaderBot {
 
 		public static bool doesUserHaveRole(SocketGuildUser user, string roleName) {
 			bool result = false;
-			var role = user.Roles.FirstOrDefault(x => SupportingMethods.stringEquals(x.Name, roleName));
+			var role = user.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
 			if (user.Roles.Contains(role)) {
 				result = true;
 			}

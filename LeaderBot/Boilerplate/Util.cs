@@ -1,7 +1,6 @@
 ﻿using System;
 using Discord;
 using Discord.WebSocket;
-using LeaderBot.Points;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -16,7 +15,7 @@ namespace LeaderBot {
 	/// <summary>
 	/// This is used to alleviate boilerplate code
 	/// </summary>
-	public class SupportingMethods {
+	public class Util {
 		private static MongoClient Client;
 		private static IMongoDatabase Database;
 		private static IMongoCollection<BsonDocument> Collection;
@@ -105,7 +104,7 @@ namespace LeaderBot {
 			if (doc != null) {
 				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
 			} else {
-				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(SupportingMethods).Name}.getUserInformation", "Could not find user!"));
+				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUserInformation", "Could not find user!"));
 			}
 			return userInformation;
 		}
@@ -133,7 +132,7 @@ namespace LeaderBot {
 
 			} else {
 
-				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(SupportingMethods).Name}.getUserInformation", "Could not find user!"));
+				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUserInformation", "Could not find user!"));
 			}
 			return userInformation;
 		}
