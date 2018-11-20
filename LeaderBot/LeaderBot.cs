@@ -34,8 +34,8 @@ namespace LeaderBot {
 			}
 			string token = GetKey.getKey(key);
 
-			//Util.SetupMongoDatabase();
-			//Util.SetupMongoCollection("userData");
+			Util.SetupMongoDatabase();
+			Util.SetupMongoCollection("userData");
 			RoleCheck.setUpClient(client);
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
@@ -95,17 +95,17 @@ namespace LeaderBot {
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.HandleCommandAsync", $"HandleCommandAsync G: {guildName} C: {channelName} User: {userName}  Msg: {msg}"));
 
 				
-				//if (!msg.Author.IsBot) {
-				//	Util.updateDocument(userName, "numberOfMessages", 1);
-				//	Util.updateDocument(userName, "experience", msg.Content.Length);
-				//	await RoleCheck.messageCountRoles(msg.Author, channelID);
-				//	await RoleCheck.dateJoinedRoles(msg.Author, channelID);
-				//}
-				//if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
-				//	if (msg.MentionedUsers.ToList().Count >= 1) {
-				//		await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
-				//	}
-				//}
+				if (!msg.Author.IsBot) {
+					Util.updateDocument(userName, "numberOfMessages", 1);
+					Util.updateDocument(userName, "experience", msg.Content.Length);
+					await RoleCheck.messageCountRoles(msg.Author, channelID);
+					await RoleCheck.dateJoinedRoles(msg.Author, channelID);
+				}
+				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
+					if (msg.MentionedUsers.ToList().Count >= 1) {
+						await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+					}
+				}
 
 				if (msg == null)
 					return;
