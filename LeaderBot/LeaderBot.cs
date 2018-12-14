@@ -103,7 +103,7 @@ namespace LeaderBot {
 				}
 				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
 					if (msg.MentionedUsers.ToList().Count >= 1) {
-						await RoleCheck.addRole(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+						await RoleCheck.giveRoleToUser(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
 					}
 				}
 
