@@ -19,13 +19,13 @@ namespace LeaderBot {
 			UserInfo userInfo = Util.getUserInformation(user);
 			if (userInfo != null) {
 				if (userInfo.reactionCount >= 250 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Major reaction")) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
 				} else if (userInfo.reactionCount >= 100 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Reactionary")) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
 				} else if (userInfo.reactionCount >= 50 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Reactor")) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
 				} else if (userInfo.reactionCount >= 25) {
-					await addRole(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
 				}
 			} else {
 				await createUserInDatabase(reaction.User.Value as SocketUser, channel.Id);
@@ -37,15 +37,15 @@ namespace LeaderBot {
 			if (userInfo != null) {
 				if (bet >= 5000) {
 					if (win) {
-						await addRole(user, "Chicken Dinner", channelID);
+						await giveRoleToUser(user, "Chicken Dinner", channelID);
 					} else {
-						await addRole(user, "Oof", channelID);
+						await giveRoleToUser(user, "Oof", channelID);
 					}
 				}
 				if (userInfo.winCoinflipStreak >= 5) {
-					await addRole(user, "Winner Winner", channelID);
+					await giveRoleToUser(user, "Winner Winner", channelID);
 				} else if (userInfo.loseCoinflipStreak >= 5) {
-					await addRole(user, "Bad Luck", channelID);
+					await giveRoleToUser(user, "Bad Luck", channelID);
 				}
 			} else {
 				await createUserInDatabase(user as SocketUser, channelID);
@@ -60,15 +60,15 @@ namespace LeaderBot {
 				DateTime dateJoined = DateTime.Parse(userInfo.dateJoined);
 				TimeSpan daysInServer = DateTime.Now - dateJoined;
 				if (daysInServer.Days >= 365 && doesUserHaveRole(userGuild, "Midlife Crisis")) {
-					await addRole(user as SocketGuildUser, "Senior", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Senior", channelID);
 				} else if (daysInServer.Days >= 270 && doesUserHaveRole(userGuild, "Adult")) {
-					await addRole(user as SocketGuildUser, "Midlife Crisis", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Midlife Crisis", channelID);
 				} else if (daysInServer.Days >= 180 && doesUserHaveRole(userGuild, "Teen")) {
-					await addRole(user as SocketGuildUser, "Adult", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Adult", channelID);
 				} else if (daysInServer.Days >= 90 && doesUserHaveRole(userGuild, "Child")) {
-					await addRole(user as SocketGuildUser, "Teen", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Teen", channelID);
 				} else if (daysInServer.Days >= 30) {
-					await addRole(user as SocketGuildUser, "Child", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Child", channelID);
 				}
 			} else {
 				await createUserInDatabase(user, channelID);
@@ -79,28 +79,46 @@ namespace LeaderBot {
 			UserInfo userInfo = Util.getUserInformation(userName);
 			if (userInfo != null) {
 				if (userInfo.isBetaTester) {
-					await addRole(user as SocketGuildUser, "Beta Tester", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Beta Tester", channelID);
 				}
 				if (userInfo.numberOfMessages >= 10000 && doesUserHaveRole(user as SocketGuildUser, "I could write a novel")) {
-					await addRole(user as SocketGuildUser, "I wrote a novel", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "I wrote a novel", channelID);
 				} else if (userInfo.numberOfMessages >= 1000 && doesUserHaveRole(user as SocketGuildUser, "I'm liking this server")) {
-					await addRole(user as SocketGuildUser, "I could write a novel", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "I could write a novel", channelID);
 				} else if (userInfo.numberOfMessages >= 10 && doesUserHaveRole(user as SocketGuildUser, "Hi and Welcome!")) {
-					await addRole(user as SocketGuildUser, "I'm liking this server", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "I'm liking this server", channelID);
 				} else if (userInfo.numberOfMessages >= 1) {
-					await addRole(user as SocketGuildUser, "Hi and Welcome!", channelID);
+					await giveRoleToUser(user as SocketGuildUser, "Hi and Welcome!", channelID);
 				}
 			} else {
 				await createUserInDatabase(user, channelID);
 			}
 		}
 
-		public static async Task createUserInDatabase(SocketUser userName, ulong id) {
+        public static async Task dailyPointsRoles(SocketUser user, ulong channelID, int minDailyPoints, int maxDailyPoints, int pointsEarned, int jackpot) {
+            string userName = user.ToString();
+            UserInfo userInfo = Util.getUserInformation(userName);
+            if (userInfo != null) {
+                if (pointsEarned.Equals(jackpot)) {
+                    await giveRoleToUser(user as SocketGuildUser, "Jackpot!", channelID);
+                } else if (pointsEarned.Equals(123)) {
+                    await giveRoleToUser(user as SocketGuildUser, "Count von Count", channelID);
+                } else if (pointsEarned.Equals(minDailyPoints)) {
+                    await giveRoleToUser(user as SocketGuildUser, "zweihundertfünfzig", channelID);
+                } else if (pointsEarned.Equals(maxDailyPoints)) {
+                    await giveRoleToUser(user as SocketGuildUser, "einhundert", channelID);
+                }
+            } else {
+                await createUserInDatabase(user, channelID);
+            }
+        }
+
+        public static async Task createUserInDatabase(SocketUser userName, ulong id) {
 			Util.createUserInDatabase(userName);
-			await addRole(userName as SocketGuildUser, "Family", id);
+			await giveRoleToUser(userName as SocketGuildUser, "Family", id);
 		}
 
-		public static async Task addRole(SocketGuildUser user, string roleName, ulong channelID) {
+		public static async Task giveRoleToUser(SocketGuildUser user, string roleName, ulong channelID) {
 			var userName = user as SocketUser;
 			var currentGuild = user.Guild as SocketGuild;
 			var role = currentGuild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
