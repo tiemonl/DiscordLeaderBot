@@ -101,12 +101,14 @@ namespace LeaderBot {
             if (userInfo != null) {
                 if (pointsEarned.Equals(jackpot)) {
                     await giveRoleToUser(user as SocketGuildUser, "Jackpot!", channelID);
-                } else if (pointsEarned.Equals(123)) {
+                }
+				//seperated jackpot from other roles in case jackpot is the same value as one below.
+				if (pointsEarned.Equals(123)) {
                     await giveRoleToUser(user as SocketGuildUser, "Count von Count", channelID);
                 } else if (pointsEarned.Equals(minDailyPoints)) {
-                    await giveRoleToUser(user as SocketGuildUser, "zweihundertfünfzig", channelID);
-                } else if (pointsEarned.Equals(maxDailyPoints)) {
                     await giveRoleToUser(user as SocketGuildUser, "einhundert", channelID);
+                } else if (pointsEarned.Equals(maxDailyPoints)) {
+                    await giveRoleToUser(user as SocketGuildUser, "zweihundertfünfzig", channelID);
                 }
             } else {
                 await createUserInDatabase(user, channelID);

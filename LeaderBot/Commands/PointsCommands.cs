@@ -31,9 +31,9 @@ namespace LeaderBot.Commands {
 				Random rand = new Random();
 				var points = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
 				var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
+				await RoleCheck.dailyPointsRoles(user as SocketGuildUser, Context.Message.Channel.Id, MIN_DAILY_POINTS, MAX_DAILY_POINTS, points, jackpot);
 				if (points.Equals(jackpot)) {
 					points *= 10;
-					await RoleCheck.giveRoleToUser(user as SocketGuildUser, "Jackpot!", Context.Message.Channel.Id);
 					await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
 				}
 				Util.updateDocument(user.ToString(), "points", points);
