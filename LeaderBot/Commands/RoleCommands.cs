@@ -93,18 +93,22 @@ namespace LeaderBot {
 
 		[Command("rolesList"), Summary("prints role list"), RequireUserPermission(GuildPermission.Administrator)]
 		public async Task printRolesList() {
-			var allRoles = Util.LoadAllRolesFromServer();
+			//delete command and previous role list
+			var items = await Context.Channel.GetMessagesAsync(2).Flatten();
+			await Context.Channel.DeleteMessagesAsync(items);
+
+			var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Reverse();
 			StringBuilder sb = new StringBuilder();
 			foreach (var role in allRoles) {
-				var embed = new EmbedBuilder();
-				Random r = new Random();
-				embed.WithTitle(role.Name);
-				embed.AddField("Description", role.Description);
-				embed.AddField("Difficulty", role.Difficulty);
-				embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
-				await ReplyAsync("", embed: embed);
+				String s = $"**{role.Name}** | {role.Description} | {role.Difficulty}\n";
+				if (sb.ToString().Length + s.Length > 2000) {
+					await ReplyAsync(sb.ToString());
+					sb.Clear();
+				} else{
+					sb.Append(s);
+				}
 			}
-
+			await ReplyAsync(sb.ToString());
 		}
 
 		[Command("updateUserFields"), Summary("Returns user experience")]
