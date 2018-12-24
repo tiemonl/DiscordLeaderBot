@@ -1,7 +1,8 @@
 ﻿namespace LeaderBot {
 	public class PointsReceived {
-		public string Date { get; set; }
-		public string[] Users { get; set; }
+		public long _id { get; set; }
+		public string date { get; set; }
+		public string[] users { get; set; }
 
 		public PointsReceived() {
 		}

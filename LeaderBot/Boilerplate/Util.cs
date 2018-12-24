@@ -119,25 +119,25 @@ namespace LeaderBot {
 		}
 
 		public static PointsReceived getPointsReceived(string field, string criteria) {
-			PointsReceived userInformation = null;
+			PointsReceived pointsReceived = null;
 			var doc = findBsonDocumentByFieldCriteria(field, criteria);
 			if (doc == null) {
 				createNewDatePointsReceived(criteria);
 				doc = findBsonDocumentByFieldCriteria(field, criteria);
 			}
 			if (doc != null) {
-				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
-				userInformation = JsonConvert.DeserializeObject<PointsReceived>(jsonText);
+				pointsReceived = BsonSerializer.Deserialize<PointsReceived>(doc);
 
 			} else {
 
-				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUserInformation", "Could not find user!"));
+				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getPointsReceived", "Could not find date!"));
 			}
-			return userInformation;
+			return pointsReceived;
 		}
 
 		public static void createNewDatePointsReceived(string date) {
 			var document = new BsonDocument {
+				{ "_id", Collection.CountDocuments(new BsonDocument())+1 },
 				{ "date", date },
 				{ "users",  new BsonArray{ } }
 				};
