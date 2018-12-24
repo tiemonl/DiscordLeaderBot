@@ -54,19 +54,30 @@ namespace LeaderBot {
 		//FIXME lol
 		[Command("missingRoles"), Summary("Gives a list of currently not attained roles")]
 		public async Task missingRoles() {
-			List<SocketRole> allGuildRoles = new List<SocketRole>();
-			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
-				allGuildRoles.Add(guildRoles);
+			var allRoles = Util.LoadAllRolesFromServer().Select(a => a.Name).ToList();
+			var allUserRoles = ((SocketGuildUser) Context.Message.Author).Roles.Select(b => b.Name).ToList();
+
+			StringBuilder missingroles = new StringBuilder();
+
+			foreach (var role in allRoles){
+				if (!allUserRoles.Contains(role)){
+					missingroles.Append($"{role}\n");
+				}
 			}
-			foreach (SocketRole userRole in ((SocketGuildUser) Context.Message.Author).Roles) {
-				if (allGuildRoles.Contains(userRole))
-					allGuildRoles.Remove(userRole);
-			}
-			string missingroles = "";
-			foreach (var unobtainedRole in allGuildRoles.OrderBy(x => x.Name)) {
-				missingroles += unobtainedRole.ToString() + ", ";
-			}
-			await ReplyAsync(missingroles);
+
+			//List<SocketRole> allGuildRoles = new List<SocketRole>();
+			//foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
+			//	allGuildRoles.Add(guildRoles);
+			//}
+			//foreach (SocketRole userRole in ((SocketGuildUser) Context.Message.Author).Roles) {
+			//	if (allGuildRoles.Contains(userRole))
+			//		allGuildRoles.Remove(userRole);
+			//}
+			//string missingroles = "";
+			//foreach (var unobtainedRole in allGuildRoles.OrderBy(x => x.Name)) {
+			//	missingroles += unobtainedRole.ToString() + ", ";
+			//}
+			await ReplyAsync(missingroles.ToString());
 		}
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
