@@ -16,11 +16,11 @@ namespace LeaderBot.Commands {
 			Shop shopItem = Util.getShopItem(item);
 			var embed = new EmbedBuilder();
 			Random r = new Random();
-			embed.WithTitle(shopItem.Name);
-			embed.AddInlineField("Attack", shopItem.Attack);
-			embed.AddInlineField("Defence", shopItem.Defence);
-			embed.AddInlineField("Cost", shopItem.Cost);
-			embed.AddInlineField("Level Requirement", shopItem.LevelRequirement);
+			embed.WithTitle(shopItem.name);
+			embed.AddInlineField("Attack", shopItem.attack);
+			embed.AddInlineField("Defence", shopItem.defence);
+			embed.AddInlineField("Cost", shopItem.cost);
+			embed.AddInlineField("Level Requirement", shopItem.levelRequirement);
 			embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
 			await ReplyAsync("", embed: embed);
 			Util.SetupMongoCollection("userData");
@@ -35,16 +35,16 @@ namespace LeaderBot.Commands {
 			UserInfo userInfo = Util.getUserInformation(userName.ToString());
 			var embed = new EmbedBuilder();
 			Random r = new Random();
-			if (userInfo.points < shopItem.Cost) {
+			if (userInfo.points < shopItem.cost) {
 				await ReplyAsync($"User does not have enough points to buy item.");
 			} else {
-				Util.updateDocument(userName.ToString(), "points", shopItem.Cost*-1);
-				Util.updateDocument(userName.ToString(), "totalAttack", shopItem.Attack);
-				Util.updateDocument(userName.ToString(), "totalDefense", shopItem.Defence);
+				Util.updateDocument(userName.ToString(), "points", shopItem.cost*-1);
+				Util.updateDocument(userName.ToString(), "totalAttack", shopItem.attack);
+				Util.updateDocument(userName.ToString(), "totalDefense", shopItem.defence);
 				embed.WithTitle("Item bought!");
 				embed.WithThumbnailUrl(userName.GetAvatarUrl());
-				embed.AddInlineField("Attack", userInfo.totalAttack + shopItem.Attack);
-				embed.AddInlineField("Defense", userInfo.totalDefense + shopItem.Defence);
+				embed.AddInlineField("Attack", userInfo.totalAttack + shopItem.attack);
+				embed.AddInlineField("Defense", userInfo.totalDefense + shopItem.defence);
 				embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
 				await ReplyAsync("", embed: embed);
 			}
