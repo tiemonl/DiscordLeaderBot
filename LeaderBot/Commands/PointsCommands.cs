@@ -19,7 +19,7 @@ namespace LeaderBot.Commands {
 			string currentDate = DateTime.Now.ToString("yyyyMMdd");
 			PointsReceived pointsReceived = Util.getPointsReceived("date", currentDate);
 			var user = Context.Message.Author;
-			List<string> users = pointsReceived.Users.ToList();
+			List<string> users = pointsReceived.users.ToList();
 
 			if (users.Contains(user.ToString())) {
 				TimeSpan untilReset = DateTime.Today.AddDays(1) - DateTime.Now;
