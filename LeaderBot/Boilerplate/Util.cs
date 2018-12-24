@@ -113,8 +113,7 @@ namespace LeaderBot {
 			Shop shopItem = null;
 			var doc = findBsonDocumentByFieldCriteria("_id", item);
 			if (doc != null) {
-				string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
-				shopItem = JsonConvert.DeserializeObject<Shop>(jsonText);
+				shopItem = BsonSerializer.Deserialize<Shop>(doc);
 			}
 			return shopItem;
 		}
