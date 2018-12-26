@@ -129,7 +129,6 @@ namespace LeaderBot {
 				pointsReceived = BsonSerializer.Deserialize<PointsReceived>(doc);
 
 			} else {
-
 				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getPointsReceived", "Could not find date!"));
 			}
 			return pointsReceived;

@@ -10,6 +10,7 @@ namespace LeaderBot.Commands {
 	public class PointsCommands : ModuleBase {
 		const int MIN_DAILY_POINTS = 100;
 		const int MAX_DAILY_POINTS = 250;
+		const int JACKPOT_MULTIPLIER = 10;
 		public PointsCommands() {
 		}
 
@@ -33,7 +34,7 @@ namespace LeaderBot.Commands {
 				var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
 				await RoleCheck.dailyPointsRoles(user as SocketGuildUser, Context.Message.Channel.Id, MIN_DAILY_POINTS, MAX_DAILY_POINTS, points, jackpot);
 				if (points.Equals(jackpot)) {
-					points *= 10;
+					points *= JACKPOT_MULTIPLIER;
 					await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
 				}
 				Util.updateDocument(user.ToString(), "points", points);
