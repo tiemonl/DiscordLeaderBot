@@ -19,6 +19,7 @@
     <Folder Include="Properties\" />
     <Folder Include="Tokens\" />
     <Folder Include="Objects\" />
+    <Folder Include="LeadingRoles\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources.Designer.cs">
