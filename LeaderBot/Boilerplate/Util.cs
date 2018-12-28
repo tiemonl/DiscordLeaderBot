@@ -104,7 +104,7 @@ namespace LeaderBot {
 			if (doc != null) {
 				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
 			} else {
-				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUserInformation", "Could not find user!"));
+				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUserInformation", $"Could not find user {user}!"));
 			}
 			return userInformation;
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -118,6 +119,18 @@ namespace LeaderBot {
         public static async Task createUserInDatabase(SocketUser userName, ulong id) {
 			Util.createUserInDatabase(userName);
 			await giveRoleToUser(userName as SocketGuildUser, "Family", id);
+		}
+
+		public static async Task removeRoleFromUser(IReadOnlyCollection<IGuildUser> guildUsers, string roleName) {
+			foreach (var user in guildUsers) {
+				var userName = user as SocketUser;
+				var currentGuild = user.Guild as SocketGuild;
+				var role = currentGuild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
+				if ((user as SocketGuildUser).Roles.Contains(role)) {
+					await user.RemoveRoleAsync(role);
+					break;
+				}
+			}
 		}
 
 		public static async Task giveRoleToUser(SocketGuildUser user, string roleName, ulong channelID) {

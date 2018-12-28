@@ -7,6 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using LeaderBot.LeadingRoles;
 
 namespace LeaderBot {
 	public class LeaderBot {
@@ -94,12 +95,14 @@ namespace LeaderBot {
 				var channelID = msg.Channel.Id;
 				await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.HandleCommandAsync", $"HandleCommandAsync G: {guildName} C: {channelName} User: {userName}  Msg: {msg}"));
 
-				
+				var guildUsers = await context.Guild.GetUsersAsync();
+
 				if (!msg.Author.IsBot) {
 					Util.updateDocument(userName, "numberOfMessages", 1);
 					Util.updateDocument(userName, "experience", msg.Content.Length);
 					await RoleCheck.messageCountRoles(msg.Author, channelID);
 					await RoleCheck.dateJoinedRoles(msg.Author, channelID);
+					await PointLeader.checkForNewLeader(guildUsers, channelID);
 				}
 				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
 					if (msg.MentionedUsers.ToList().Count >= 1) {
