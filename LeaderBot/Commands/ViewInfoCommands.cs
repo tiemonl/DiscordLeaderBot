@@ -73,14 +73,13 @@ namespace LeaderBot {
 		}
 
 		[Command("getExperience"), Summary("Returns user experience"), Alias("getexp")]
-		public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser userName = null) {
+		public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser user = null) {
 			try {
 
-				if (userName == null) {
-					userName = ((SocketGuildUser) Context.Message.Author);
+				if (user == null) {
+					user = ((SocketGuildUser) Context.Message.Author);
 				}
-				var user = userName as SocketUser;
-				UserInfo userInfo = Util.getUserInformation(user.ToString());
+				UserInfo userInfo = Util.getUserInformation(user.Id);
 				if (userInfo != null) {
 					var currentExp = userInfo.experience;
 					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
@@ -99,7 +98,7 @@ namespace LeaderBot {
 				var date = DateTime.Parse(userName.JoinedAt.ToString());
 				var today = DateTime.Now;
 				var daysInServer = today - date;
-				await ReplyAsync($"user joined {date}\nToday: {today}\nuser in server for {daysInServer.Days} days");
+				await ReplyAsync($"{userName} joined {date}\nToday: {today}\nuser in server for {daysInServer.Days} days");
 			} catch (Exception ex) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".getExperience", "Unexpected Exception", ex));
 			}
@@ -117,10 +116,10 @@ namespace LeaderBot {
 
 		[Command("getstats"), Summary("Returns user experience")]
 		public async Task getStats() {
-			var userName = ((SocketGuildUser)Context.Message.Author);
-			UserInfo info = Util.getUserInformation(userName.ToString());
+			var user = ((SocketGuildUser)Context.Message.Author);
+			UserInfo info = Util.getUserInformation(user.Id);
 			StringBuilder sb = new StringBuilder();
-			sb.Append($"{userName}'s stats\n");
+			sb.Append($"{user}'s stats\n");
 			sb.Append($"\t-**Attack**: {info.totalAttack}\n");
 			sb.Append($"\t-**Defense**: {info.totalDefense}");
 			await ReplyAsync(sb.ToString());

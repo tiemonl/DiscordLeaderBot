@@ -32,12 +32,12 @@ namespace LeaderBot.Commands {
 				Random rand = new Random();
 				var points = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
 				var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
-				await RoleCheck.dailyPointsRoles(user as SocketGuildUser, Context.Message.Channel.Id, MIN_DAILY_POINTS, MAX_DAILY_POINTS, points, jackpot);
+				await RoleUtils.dailyPointsRoles(user as SocketGuildUser, Context.Message.Channel.Id, MIN_DAILY_POINTS, MAX_DAILY_POINTS, points, jackpot);
 				if (points.Equals(jackpot)) {
 					points *= JACKPOT_MULTIPLIER;
 					await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
 				}
-				Util.updateDocument(user.ToString(), "points", points);
+				Util.updateDocument(user.Id, "points", points);
 
 				await ReplyAsync($"{user} earned {points} points!");
 			}
@@ -50,7 +50,7 @@ namespace LeaderBot.Commands {
 				userName = ((SocketGuildUser) Context.Message.Author);
 			}
 			var user = userName as SocketUser;
-			UserInfo userInfo = Util.getUserInformation(user.ToString());
+			UserInfo userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
 				var currentPoints = userInfo.points;
 				await ReplyAsync($"{user} has {currentPoints} points!");
@@ -60,12 +60,12 @@ namespace LeaderBot.Commands {
 
 		[Command("bet"), Summary("bet with user total points")]
 		public async Task bet([Summary("Amount of points to bet")] int bettingPoints, [Summary("Side of coin picked.")] string coinSide) {
-			var userName = ((SocketGuildUser) Context.Message.Author);
-			var user = userName as SocketUser;
+			var user = ((SocketGuildUser) Context.Message.Author);
+			var userId = user.Id;
 			bool win = false;
 			var embed = new EmbedBuilder();
 			embed.WithTitle("Coin Toss");
-			UserInfo userInfo = Util.getUserInformation(user.ToString());
+			UserInfo userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
 				var currentPoints = userInfo.points;
 				if (bettingPoints > currentPoints) {
@@ -88,18 +88,18 @@ namespace LeaderBot.Commands {
 					
 					if (Util.stringEquals(result, coinSide)) {
 						win = true;
-						Util.updateDocument(userName.ToString(), "loseCoinflipStreak", userInfo.loseCoinflipStreak * -1);
-						Util.updateDocument(userName.ToString(), "winCoinflipStreak", 1);
-						Util.updateDocument(userName.ToString(), "points", bettingPoints);
+						Util.updateDocument(userId, "loseCoinflipStreak", userInfo.loseCoinflipStreak * -1);
+						Util.updateDocument(userId, "winCoinflipStreak", 1);
+						Util.updateDocument(userId, "points", bettingPoints);
 						embed.WithColor(Color.Green);
 						embed.AddInlineField("Result", "Winner");
 						embed.AddInlineField("Coin side", result);
 						embed.AddInlineField("Winning streak", userInfo.winCoinflipStreak + 1);
 						embed.AddInlineField("Total points", currentPoints + bettingPoints);
 					} else {
-						Util.updateDocument(userName.ToString(), "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
-						Util.updateDocument(userName.ToString(), "loseCoinflipStreak", 1);
-						Util.updateDocument(userName.ToString(), "points", bettingPoints * -1);
+						Util.updateDocument(userId, "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
+						Util.updateDocument(userId, "loseCoinflipStreak", 1);
+						Util.updateDocument(userId, "points", bettingPoints * -1);
 						embed.WithColor(Color.Red);
 						embed.AddInlineField("Result", "Loser");
 						embed.AddInlineField("Coin side", result);
@@ -107,7 +107,7 @@ namespace LeaderBot.Commands {
 						embed.AddInlineField("Total points", currentPoints - bettingPoints);
 					}
 					await ReplyAsync("", embed: embed);
-					await RoleCheck.coinflipRoles(userName, bettingPoints, win, Context.Message.Channel.Id);
+					await RoleUtils.coinflipRoles(user, bettingPoints, win, Context.Message.Channel.Id);
 				}
 
 

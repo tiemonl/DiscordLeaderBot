@@ -14,8 +14,7 @@ namespace LeaderBot.LeadingRoles {
 			long userPoints = 0;
 			foreach (var user in guildUsers) {
 				if (!user.IsBot) {
-					var userName = user as SocketUser;
-					UserInfo userInfo = Util.getUserInformation(userName.ToString());
+					UserInfo userInfo = Util.getUserInformation(user.Id);
 					if (userInfo != null) {
 						long currentUserPoints = userInfo.points;
 						if (currentUserPoints > userPoints) {
@@ -28,8 +27,8 @@ namespace LeaderBot.LeadingRoles {
 			var currentTorchHolder = userWithMostPoints as SocketGuildUser;
 			var role = currentTorchHolder.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, "Point Torch"));
 			if (!currentTorchHolder.Roles.Contains(role)) {
-				await RoleCheck.removeRoleFromUser(guildUsers, "Point Torch");
-				await RoleCheck.giveRoleToUser(userWithMostPoints as SocketGuildUser, "Point Torch", channelID);
+				await RoleUtils.removeRoleFromUser(guildUsers, "Point Torch");
+				await RoleUtils.giveRoleToUser(userWithMostPoints as SocketGuildUser, "Point Torch", channelID);
 			}
 		}
 	}
