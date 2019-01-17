@@ -37,7 +37,7 @@ namespace LeaderBot {
 
 			Util.SetupMongoDatabase();
 			Util.SetupMongoCollection("userData");
-			RoleCheck.setUpClient(client);
+			RoleUtils.setUpClient(client);
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
 			await client.LoginAsync(TokenType.Bot, token);
@@ -48,11 +48,11 @@ namespace LeaderBot {
 		}
 
 		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
-			var user = reaction.User.Value.ToString();
+			var user = reaction.User.Value as SocketGuildUser;
 
-			Util.updateDocument(user, "reactionCount", 1);
+			Util.updateDocument(user.Id, "reactionCount", 1);
 
-			await RoleCheck.reactionCountRoles(channel, reaction, user);
+			await RoleUtils.reactionCountRoles(channel, reaction, user);
 		}
 
 
@@ -76,7 +76,7 @@ namespace LeaderBot {
 			var id = currentGuild.DefaultChannel.Id;
 			await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.UserJoined", $"{userName} joined {currentGuild}"));
 
-			await RoleCheck.createUserInDatabase(userName, id);
+			await RoleUtils.createUserInDatabase(userName, id);
 		}
 
 
@@ -88,6 +88,7 @@ namespace LeaderBot {
 			try {
 				var msg = messageParam as SocketUserMessage;
 
+				ulong userId = msg.Author.Id;
 				userName = GetUserName(msg.Author);
 				channelName = msg.Channel?.Name ?? "NULL";
 				var context = new CommandContext(client, msg);
@@ -98,15 +99,15 @@ namespace LeaderBot {
 				var guildUsers = await context.Guild.GetUsersAsync();
 
 				if (!msg.Author.IsBot) {
-					Util.updateDocument(userName, "numberOfMessages", 1);
-					Util.updateDocument(userName, "experience", msg.Content.Length);
-					await RoleCheck.messageCountRoles(msg.Author, channelID);
-					await RoleCheck.dateJoinedRoles(msg.Author, channelID);
+					Util.updateDocument(userId, "numberOfMessages", 1);
+					Util.updateDocument(userId, "experience", msg.Content.Length);
+					await RoleUtils.messageCountRoles(msg.Author, channelID);
+					await RoleUtils.dateJoinedRoles(msg.Author, channelID);
 					await PointLeader.checkForNewLeader(guildUsers, channelID);
 				}
 				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
 					if (msg.MentionedUsers.ToList().Count >= 1) {
-						await RoleCheck.giveRoleToUser(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+						await RoleUtils.giveRoleToUser(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
 					}
 				}
 

@@ -6,18 +6,18 @@ using Discord;
 using Discord.WebSocket;
 
 namespace LeaderBot {
-	public class RoleCheck {
+	public class RoleUtils {
 		private static DiscordSocketClient client;
 
-		public RoleCheck() {
+		public RoleUtils() {
 		}
 
 		public static void setUpClient(DiscordSocketClient myClient) {
 			client = myClient;
 		}
 
-		public static async Task reactionCountRoles(ISocketMessageChannel channel, SocketReaction reaction, string user) {
-			UserInfo userInfo = Util.getUserInformation(user);
+		public static async Task reactionCountRoles(ISocketMessageChannel channel, SocketReaction reaction, SocketGuildUser user) {
+			var userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
 				if (userInfo.reactionCount >= 250 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Major reaction")) {
 					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
@@ -34,7 +34,7 @@ namespace LeaderBot {
 		}
 
 		public static async Task coinflipRoles(SocketGuildUser user, int bet, bool win, ulong channelID) {
-			UserInfo userInfo = Util.getUserInformation(user.ToString());
+			UserInfo userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
 				if (bet >= 5000) {
 					if (win) {
@@ -54,9 +54,8 @@ namespace LeaderBot {
 		}
 
 		public static async Task dateJoinedRoles(SocketUser user, ulong channelID) {
-			string userName = user.ToString();
 			var userGuild = user as SocketGuildUser;
-			UserInfo userInfo = Util.getUserInformation(userName);
+			UserInfo userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
 				DateTime dateJoined = DateTime.Parse(userInfo.dateJoined);
 				TimeSpan daysInServer = DateTime.Now - dateJoined;
@@ -76,8 +75,7 @@ namespace LeaderBot {
 			}
 		}
 		public static async Task messageCountRoles(SocketUser user, ulong channelID) {
-			string userName = user.ToString();
-			UserInfo userInfo = Util.getUserInformation(userName);
+			UserInfo userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
 				if (userInfo.isBetaTester) {
 					await giveRoleToUser(user as SocketGuildUser, "Beta Tester", channelID);
@@ -97,8 +95,7 @@ namespace LeaderBot {
 		}
 
         public static async Task dailyPointsRoles(SocketUser user, ulong channelID, int minDailyPoints, int maxDailyPoints, int pointsEarned, int jackpot) {
-            string userName = user.ToString();
-            UserInfo userInfo = Util.getUserInformation(userName);
+           UserInfo userInfo = Util.getUserInformation(user.Id);
             if (userInfo != null) {
                 if (pointsEarned.Equals(jackpot)) {
                     await giveRoleToUser(user as SocketGuildUser, "Jackpot!", channelID);

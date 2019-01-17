@@ -57,12 +57,22 @@ namespace LeaderBot {
 			return result;
 		}
 
+		public static BsonDocument findBsonDocumentByFieldCriteria(string field, ulong criteria) {
+			var result = Collection.Find(filterDocumentByFieldCriteria(field, criteria)).FirstOrDefault();
+			return result;
+		}
+
 		public static BsonDocument findBsonDocumentByFieldCriteria(string field, int criteria) {
 			var result = Collection.Find(filterDocumentByFieldCriteria(field, criteria)).FirstOrDefault();
 			return result;
 		}
 
 		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, string criteria) {
+			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
+			return filter;
+		}
+
+		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, ulong criteria) {
 			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
 			return filter;
 		}
@@ -86,8 +96,8 @@ namespace LeaderBot {
 		/// <param name="user">User to match to</param>
 		/// <param name="field">Field to update</param>
 		/// <param name="updateCount">the amount to increase the field by. Default is zero</param>
-		public static void updateDocument(string user, string field, int updateCount = 0) {
-			var filterUserName = filterDocumentByFieldCriteria("name", user);
+		public static void updateDocument(ulong user, string field, int updateCount = 0) {
+			var filterUserName = filterDocumentByFieldCriteria("_id", user);
 			var update = new BsonDocument("$inc", new BsonDocument { { field, updateCount } });
 			Collection.FindOneAndUpdateAsync(filterUserName, update);
 		}
@@ -97,10 +107,10 @@ namespace LeaderBot {
 		/// </summary>
 		/// <returns>The user information</returns>
 		/// <param name="user">User to get the information from</param>
-		public static UserInfo getUserInformation(string user) {
+		public static UserInfo getUserInformation(ulong user) {
 			UserInfo userInformation = null;
 
-			var doc = findBsonDocumentByFieldCriteria("name", user);
+			var doc = findBsonDocumentByFieldCriteria("_id", user);
 			if (doc != null) {
 				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
 			} else {
@@ -182,11 +192,11 @@ namespace LeaderBot {
 		}
 
 		//edit as needed
-		public static void updateDocumentField(string user, string field, BsonArray value) {
-			var doc = findBsonDocumentByFieldCriteria("name", user);
+		public static void updateDocumentField(ulong user, string field, BsonArray value) {
+			var doc = findBsonDocumentByFieldCriteria("_id", user);
 			if (doc != null) {
 				var update = Builders<BsonDocument>.Update.Set(field, value);
-				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("name", user), update);
+				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("_id", user), update);
 			}
 		}
 
@@ -228,8 +238,7 @@ namespace LeaderBot {
 
 			foreach (var user in guildUsers) {
 				if (!user.IsBot) {
-					var userName = user as SocketUser;
-					UserInfo userInfo = getUserInformation(userName.ToString());
+					UserInfo userInfo = getUserInformation(user.Id);
 					if (userInfo != null) {
 						if (leaderboardName.Equals("Experience")) {
 							allUsers.Add(user as SocketGuildUser, userInfo.experience);

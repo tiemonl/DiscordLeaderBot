@@ -1,140 +1,156 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json;
-using System.Text;
-using MongoDB.Bson;
 
 namespace LeaderBot {
-	[Group("admin")]
-	public class RoleCommands : ModuleBase {
-		public Random rand = new Random();
+	public class RoleCommands {
+		private static DiscordSocketClient client;
 
 		public RoleCommands() {
 		}
 
-		//https://docs.stillu.cc/
-		[Command("createRoles"), Summary("Creates a role in the guild")]
-		public async Task createRoles() {
-			List<string> currentGuildRoles = new List<string>();
-			foreach (SocketRole guildRoles in ((SocketGuild) Context.Guild).Roles) {
-				currentGuildRoles.Add(guildRoles.Name);
-			}
-
-			foreach (var role in Util.LoadAllRolesFromServer()) {
-				if (!currentGuildRoles.Contains(role.Name)) {
-					var randColor = new Color(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
-					await Context.Guild.CreateRoleAsync(role.Name, GuildPermissions.None, randColor);
-					await Logger.Log(new LogMessage(LogSeverity.Verbose, GetType().Name + ".createRoles", "Added role to server: " + role.Name));
-					await ReplyAsync($"Added role: {role.Name}\nHow to get: {role.Description}");
-				}
-			}
+		public static void setUpClient(DiscordSocketClient myClient) {
+			client = myClient;
 		}
 
-		[Command("updateUsers"), Summary("edit's user info in database")]
-		public async Task updateUsers() {
-			StringBuilder sb = new StringBuilder();
-			foreach (var user in (await Context.Guild.GetUsersAsync())) {
-				if (!user.IsBot) {
-					var userInfo = Util.getUserInformation(user.ToString());
-
-					foreach (SocketRole userRole in ((SocketGuildUser) user).Roles) {
-						if (!userInfo.roles.Contains(userRole.ToString()))
-							Util.updateArray("name", user.ToString(), "roles", userRole.ToString());
-					}
-					sb.Append($"{user} updated.\n");
-				}
-			}
-			await ReplyAsync(sb.ToString());
-		}
-
-		[Command("giveRole"), Summary("Adds role to specified user"), RequireUserPermission(GuildPermission.Administrator)]
-		public async Task giveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add")] string roleName) {
-
-			var userInfo = user as SocketUser;
-			var currentGuild = user.Guild as SocketGuild;
-			var role = currentGuild.Roles.FirstOrDefault(x => x.Name.ToLower() == roleName.ToLower());
-			Util.updateArray("name", user.ToString(), "roles", role.ToString());
-			await Logger.Log(new LogMessage(LogSeverity.Info, GetType().Name + ".addRole", userInfo.ToString() + " added role " + role.ToString()));
-			await (userInfo as IGuildUser).AddRoleAsync(role);
-			await ReplyAsync($"{userInfo} now has {role}");
-		}
-
-		[Command("reorderRoles"), Summary("Reorders roles based on difficulty"), RequireUserPermission(GuildPermission.Administrator)]
-		public async Task reorderRoles() {
-			var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Select(x => x.Name).ToList();
-			var allGuildRoles = Context.Guild.Roles.OrderBy(y => allRoles.IndexOf(y.Name)).ToList();
-
-			//reorder leaderbot roles to be at the top for hierarchy purposes
-			var leaderbotRoles = allGuildRoles.Where(x => x.Name.Contains("leaderbot")).Reverse().ToList();
-			allGuildRoles.RemoveAll(x => x.Name.Contains("leaderbot"));
-			allGuildRoles.AddRange(leaderbotRoles);
-
-			//sort the list based on the difficulty
-			var sorting = allGuildRoles.Select((role, pos) => {
-				var res = new ReorderRoleProperties(role.Id, pos);
-				return res;
-			});
-			await Context.Guild.ReorderRolesAsync(sorting);
-			await ReplyAsync($"Roles have been reordered");
-		}
-
-		[Command("makeRole"), Summary("Creates a new role in the server"), RequireUserPermission(GuildPermission.Administrator)]
-		public async Task makeRoles(string name, string description, int difficulty) {
-			Util.createRoleInDatabase(name, description, difficulty);
-			await ReplyAsync($"Role has been inserted into the database");
-			await createRoles();
-		}
-
-		[Command("rolesList"), Summary("prints role list"), RequireUserPermission(GuildPermission.Administrator)]
-		public async Task printRolesList() {
-			//delete command and previous role list
-			var items = await Context.Channel.GetMessagesAsync(2).Flatten();
-			await Context.Channel.DeleteMessagesAsync(items);
-
-			var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Reverse();
-			StringBuilder sb = new StringBuilder();
-			foreach (var role in allRoles) {
-				String s = $"**{role.Name}** | {role.Description} | {role.Difficulty}\n";
-				if (sb.ToString().Length + s.Length > 2000) {
-					await ReplyAsync(sb.ToString());
-					sb.Clear();
-				} else{
-					sb.Append(s);
-				}
-			}
-			await ReplyAsync(sb.ToString());
-		}
-
-		[Command("updateUserFields"), Summary("Returns user experience")]
-		public async Task updateUSersField(string field) {
-			try {
-				foreach (var user in await Context.Guild.GetUsersAsync()) {
-					if (!user.IsBot) {
-						Util.updateDocumentField(user.ToString(), field, new BsonArray { });
-					}
-				}
-				await ReplyAsync($"fields updated");
-			} catch (Exception ex) {
-				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".updateUserFields", "Unexpected Exception", ex));
-			}
-		}
-
-		[Command("givePoints"), Summary("give specificed user points")]
-		public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
-			var user = userName as SocketUser;
-			Util.updateDocument(user.ToString(), "points", points);
-			UserInfo userInfo = Util.getUserInformation(user.ToString());
+		public static async Task reactionCountRoles(ISocketMessageChannel channel, SocketReaction reaction, SocketGuildUser user) {
+			var userInfo = Util.getUserInformation(user.Id);
 			if (userInfo != null) {
-				var currentPoints = userInfo.points;
-				await ReplyAsync($"{user} has {currentPoints} points!");
-
+				if (userInfo.reactionCount >= 250 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Major reaction")) {
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Overreaction", channel.Id);
+				} else if (userInfo.reactionCount >= 100 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Reactionary")) {
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Major reaction", channel.Id);
+				} else if (userInfo.reactionCount >= 50 && doesUserHaveRole(reaction.User.Value as SocketGuildUser, "Reactor")) {
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Reactionary", channel.Id);
+				} else if (userInfo.reactionCount >= 25) {
+					await giveRoleToUser(reaction.User.Value as SocketGuildUser, "Reactor", channel.Id);
+				}
+			} else {
+				await createUserInDatabase(reaction.User.Value as SocketUser, channel.Id);
 			}
+		}
+
+		public static async Task coinflipRoles(SocketGuildUser user, int bet, bool win, ulong channelID) {
+			UserInfo userInfo = Util.getUserInformation(user.Id);
+			if (userInfo != null) {
+				if (bet >= 5000) {
+					if (win) {
+						await giveRoleToUser(user, "Chicken Dinner", channelID);
+					} else {
+						await giveRoleToUser(user, "Oof", channelID);
+					}
+				}
+				if (userInfo.winCoinflipStreak >= 5) {
+					await giveRoleToUser(user, "Winner Winner", channelID);
+				} else if (userInfo.loseCoinflipStreak >= 5) {
+					await giveRoleToUser(user, "Bad Luck", channelID);
+				}
+			} else {
+				await createUserInDatabase(user as SocketUser, channelID);
+			}
+		}
+
+		public static async Task dateJoinedRoles(SocketUser user, ulong channelID) {
+			var userGuild = user as SocketGuildUser;
+			UserInfo userInfo = Util.getUserInformation(user.Id);
+			if (userInfo != null) {
+				DateTime dateJoined = DateTime.Parse(userInfo.dateJoined);
+				TimeSpan daysInServer = DateTime.Now - dateJoined;
+				if (daysInServer.Days >= 365 && doesUserHaveRole(userGuild, "Midlife Crisis")) {
+					await giveRoleToUser(user as SocketGuildUser, "Senior", channelID);
+				} else if (daysInServer.Days >= 270 && doesUserHaveRole(userGuild, "Adult")) {
+					await giveRoleToUser(user as SocketGuildUser, "Midlife Crisis", channelID);
+				} else if (daysInServer.Days >= 180 && doesUserHaveRole(userGuild, "Teen")) {
+					await giveRoleToUser(user as SocketGuildUser, "Adult", channelID);
+				} else if (daysInServer.Days >= 90 && doesUserHaveRole(userGuild, "Child")) {
+					await giveRoleToUser(user as SocketGuildUser, "Teen", channelID);
+				} else if (daysInServer.Days >= 30) {
+					await giveRoleToUser(user as SocketGuildUser, "Child", channelID);
+				}
+			} else {
+				await createUserInDatabase(user, channelID);
+			}
+		}
+		public static async Task messageCountRoles(SocketUser user, ulong channelID) {
+			UserInfo userInfo = Util.getUserInformation(user.Id);
+			if (userInfo != null) {
+				if (userInfo.isBetaTester) {
+					await giveRoleToUser(user as SocketGuildUser, "Beta Tester", channelID);
+				}
+				if (userInfo.numberOfMessages >= 10000 && doesUserHaveRole(user as SocketGuildUser, "I could write a novel")) {
+					await giveRoleToUser(user as SocketGuildUser, "I wrote a novel", channelID);
+				} else if (userInfo.numberOfMessages >= 1000 && doesUserHaveRole(user as SocketGuildUser, "I'm liking this server")) {
+					await giveRoleToUser(user as SocketGuildUser, "I could write a novel", channelID);
+				} else if (userInfo.numberOfMessages >= 10 && doesUserHaveRole(user as SocketGuildUser, "Hi and Welcome!")) {
+					await giveRoleToUser(user as SocketGuildUser, "I'm liking this server", channelID);
+				} else if (userInfo.numberOfMessages >= 1) {
+					await giveRoleToUser(user as SocketGuildUser, "Hi and Welcome!", channelID);
+				}
+			} else {
+				await createUserInDatabase(user, channelID);
+			}
+		}
+
+        public static async Task dailyPointsRoles(SocketUser user, ulong channelID, int minDailyPoints, int maxDailyPoints, int pointsEarned, int jackpot) {
+           UserInfo userInfo = Util.getUserInformation(user.Id);
+            if (userInfo != null) {
+                if (pointsEarned.Equals(jackpot)) {
+                    await giveRoleToUser(user as SocketGuildUser, "Jackpot!", channelID);
+                }
+				//seperated jackpot from other roles in case jackpot is the same value as one below.
+				if (pointsEarned.Equals(123)) {
+                    await giveRoleToUser(user as SocketGuildUser, "Count von Count", channelID);
+                } else if (pointsEarned.Equals(minDailyPoints)) {
+                    await giveRoleToUser(user as SocketGuildUser, "einhundert", channelID);
+                } else if (pointsEarned.Equals(maxDailyPoints)) {
+                    await giveRoleToUser(user as SocketGuildUser, "zweihundertfünfzig", channelID);
+                }
+            } else {
+                await createUserInDatabase(user, channelID);
+            }
+        }
+
+        public static async Task createUserInDatabase(SocketUser userName, ulong id) {
+			Util.createUserInDatabase(userName);
+			await giveRoleToUser(userName as SocketGuildUser, "Family", id);
+		}
+
+		public static async Task removeRoleFromUser(IReadOnlyCollection<IGuildUser> guildUsers, string roleName) {
+			foreach (var user in guildUsers) {
+				var userName = user as SocketUser;
+				var currentGuild = user.Guild as SocketGuild;
+				var role = currentGuild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
+				if ((user as SocketGuildUser).Roles.Contains(role)) {
+					await user.RemoveRoleAsync(role);
+					break;
+				}
+			}
+		}
+
+		public static async Task giveRoleToUser(SocketGuildUser user, string roleName, ulong channelID) {
+			var userName = user as SocketUser;
+			var currentGuild = user.Guild as SocketGuild;
+			var role = currentGuild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
+			if (!user.Roles.Contains(role)) {
+				await Logger.Log(new LogMessage(LogSeverity.Info, $"{typeof(Util).Name}.addRole", $"{userName} has earned {roleName}"));
+				await (user as IGuildUser).AddRoleAsync(role);
+				Util.updateArray("name", user.ToString(), "roles", role.ToString());
+				var channelName = client.GetChannel(channelID) as IMessageChannel;
+				if(role.Name != "???")
+					await channelName.SendMessageAsync($"{userName} has earned **{role.Name}**");
+			}
+		}
+
+		public static bool doesUserHaveRole(SocketGuildUser user, string roleName) {
+			bool result = false;
+			var role = user.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
+			if (user.Roles.Contains(role)) {
+				result = true;
+			}
+			return result;
 		}
 	}
 }
