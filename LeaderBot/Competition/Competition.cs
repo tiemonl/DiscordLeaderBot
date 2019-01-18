@@ -36,7 +36,7 @@ namespace LeaderBot.Competition
             Util.SetupMongoCollection("userData");
         }
 
-        [Command("rollunder")]
+        [Command("rollunder"), Alias("bet")]
         public async Task rollUnder(int UserUnderValue, int bet)
         {
             Util.SetupMongoCollection("competition");
@@ -56,19 +56,18 @@ namespace LeaderBot.Competition
             else
             {
 
-                Random rand = new Random();
+                Random rand = new Random(DateTime.Now.Millisecond);
                 var value = rand.Next(100)+1;
-                double factor = 100 / (bet - 1);
+                double factor = 100 / (double)(UserUnderValue - 1);
                 if (UserUnderValue > value) //win
                 {
-                    var winnings = bet * factor;
-                    //double result = bet*(3 * (double)(chanceOfLoss / 100)); //higher chance of loss closer to 3x multiplier on winning
+                    var winnings = (bet * factor)-bet;
                     Util.updateDocument(userId, "credits", (int)winnings);
                     embed.WithColor(Color.Green);
                     embed.AddField("Result", "Winner", true);
                     embed.AddField("Random Value", value, true);
-                    embed.AddField("Winnings", winnings, true);
-                    embed.AddField("Total points", userInCompetition.credits + winnings, true);
+                    embed.AddField("Winnings", (int)winnings, true);
+                    embed.AddField("Total points", userInCompetition.credits + (int)winnings, true);
                 }
                 else
                 {
