@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Discord.Net" Version="1.0.2" />
-    <PackageReference Include="MongoDB.Driver" Version="2.7.0" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Discord.Net" Version="2.0.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.7.2" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.7.2" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="DatabaseConnection.cs" />
@@ -20,6 +20,7 @@
     <Folder Include="Tokens\" />
     <Folder Include="Objects\" />
     <Folder Include="LeadingRoles\" />
+    <Folder Include="Competition\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources.Designer.cs">
