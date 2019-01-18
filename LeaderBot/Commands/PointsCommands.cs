@@ -92,21 +92,21 @@ namespace LeaderBot.Commands {
 						Util.updateDocument(userId, "winCoinflipStreak", 1);
 						Util.updateDocument(userId, "points", bettingPoints);
 						embed.WithColor(Color.Green);
-						embed.AddInlineField("Result", "Winner");
-						embed.AddInlineField("Coin side", result);
-						embed.AddInlineField("Winning streak", userInfo.winCoinflipStreak + 1);
-						embed.AddInlineField("Total points", currentPoints + bettingPoints);
+						embed.AddField("Result", "Winner", true);
+						embed.AddField("Coin side", result, true);
+						embed.AddField("Winning streak", userInfo.winCoinflipStreak + 1, true);
+						embed.AddField("Total points", currentPoints + bettingPoints, true);
 					} else {
 						Util.updateDocument(userId, "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
 						Util.updateDocument(userId, "loseCoinflipStreak", 1);
 						Util.updateDocument(userId, "points", bettingPoints * -1);
 						embed.WithColor(Color.Red);
-						embed.AddInlineField("Result", "Loser");
-						embed.AddInlineField("Coin side", result);
-						embed.AddInlineField("Losing streak", userInfo.loseCoinflipStreak + 1);
-						embed.AddInlineField("Total points", currentPoints - bettingPoints);
+						embed.AddField("Result", "Loser", true);
+						embed.AddField("Coin side", result, true);
+						embed.AddField("Losing streak", userInfo.loseCoinflipStreak + 1, true);
+						embed.AddField("Total points", currentPoints - bettingPoints, true);
 					}
-					await ReplyAsync("", embed: embed);
+					await ReplyAsync("", embed: embed.Build());
 					await RoleUtils.coinflipRoles(user, bettingPoints, win, Context.Message.Channel.Id);
 				}
 

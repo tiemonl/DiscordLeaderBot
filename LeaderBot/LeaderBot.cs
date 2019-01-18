@@ -39,7 +39,7 @@ namespace LeaderBot {
 			Util.SetupMongoCollection("userData");
 			RoleUtils.setUpClient(client);
 
-			await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+			await commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
 			await client.LoginAsync(TokenType.Bot, token);
 			await client.StartAsync();
 
@@ -114,8 +114,7 @@ namespace LeaderBot {
 				if (msg == null)
 					return;
 				else if (msg.HasCharPrefix(CommandPrefix, ref argPos)) {
-
-					var result = await commands.ExecuteAsync(context, argPos);
+					var result = await commands.ExecuteAsync(context, argPos, null);
 
 					if (!result.IsSuccess) // If execution failed, reply with the error message.
 					{

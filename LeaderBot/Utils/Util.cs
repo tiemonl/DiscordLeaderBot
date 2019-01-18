@@ -10,6 +10,7 @@ using System.Text;
 using System.Linq;
 using LeaderBot.Objects;
 using MongoDB.Bson.Serialization;
+using LeaderBot.Competition;
 
 namespace LeaderBot {
 	/// <summary>
@@ -41,7 +42,7 @@ namespace LeaderBot {
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				connectionString = Resources.mongoconnectionserver;
 			else {
-				connectionString = Resources.mongoconnection;
+				connectionString = Resources.mongoworkconnection;
 			}
 			Client = new MongoClient(connectionString);
 			Database = Client.GetDatabase("Leaderbot");
@@ -109,6 +110,7 @@ namespace LeaderBot {
 		/// <param name="user">User to get the information from</param>
 		public static UserInfo getUserInformation(ulong user) {
 			UserInfo userInformation = null;
+            Util.SetupMongoCollection("userData");
 
 			var doc = findBsonDocumentByFieldCriteria("_id", user);
 			if (doc != null) {
@@ -191,8 +193,39 @@ namespace LeaderBot {
 			Collection.InsertOneAsync(document);
 		}
 
-		//edit as needed
-		public static void updateDocumentField(ulong user, string field, BsonArray value) {
+        public static void createUserInCompetition(SocketUser userName)
+        {
+            var user = userName as SocketGuildUser;
+            var document = new BsonDocument
+            {
+                {"_id", (long)user.Id},
+                { "name", userName.ToString() },
+                { "credits", 10000 }
+            };
+            Collection.InsertOneAsync(document);
+        }
+        public static UsersEntered getUsersInCompetition(string field, ulong criteria)
+        {
+            UsersEntered usersEntered = null;
+            var doc = findBsonDocumentByFieldCriteria(field, criteria);
+            if (doc == null)
+            {
+                return null;
+            }
+            if (doc != null)
+            {
+                usersEntered = BsonSerializer.Deserialize<UsersEntered>(doc);
+
+            }
+            else
+            {
+                Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUsersInCompetition", "Could not find date!"));
+            }
+            return usersEntered;
+        }
+
+        //edit as needed
+        public static void updateDocumentField(ulong user, string field, BsonArray value) {
 			var doc = findBsonDocumentByFieldCriteria("_id", user);
 			if (doc != null) {
 				var update = Builders<BsonDocument>.Update.Set(field, value);

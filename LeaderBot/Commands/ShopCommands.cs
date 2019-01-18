@@ -17,12 +17,12 @@ namespace LeaderBot.Commands {
 			var embed = new EmbedBuilder();
 			Random r = new Random();
 			embed.WithTitle(shopItem.name);
-			embed.AddInlineField("Attack", shopItem.attack);
-			embed.AddInlineField("Defence", shopItem.defence);
-			embed.AddInlineField("Cost", shopItem.cost);
-			embed.AddInlineField("Level Requirement", shopItem.levelRequirement);
+			embed.AddField("Attack", shopItem.attack, true);
+			embed.AddField("Defence", shopItem.defence, true);
+			embed.AddField("Cost", shopItem.cost, true);
+			embed.AddField("Level Requirement", shopItem.levelRequirement, true);
 			embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
-			await ReplyAsync("", embed: embed);
+			await ReplyAsync("", embed: embed.Build());
 			Util.SetupMongoCollection("userData");
 		}
 
@@ -44,10 +44,10 @@ namespace LeaderBot.Commands {
 				Util.updateDocument(userId, "totalDefense", shopItem.defence);
 				embed.WithTitle("Item bought!");
 				embed.WithThumbnailUrl(user.GetAvatarUrl());
-				embed.AddInlineField("Attack", userInfo.totalAttack + shopItem.attack);
-				embed.AddInlineField("Defense", userInfo.totalDefense + shopItem.defence);
+				embed.AddField("Attack", userInfo.totalAttack + shopItem.attack, true);
+				embed.AddField("Defense", userInfo.totalDefense + shopItem.defence, true);
 				embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
-				await ReplyAsync("", embed: embed);
+				await ReplyAsync("", embed: embed.Build());
 			}
 		}
 	}
