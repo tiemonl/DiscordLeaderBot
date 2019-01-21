@@ -5,90 +5,35 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Linq;
 using LeaderBot.Objects;
 using MongoDB.Bson.Serialization;
 using LeaderBot.Competition;
 
-namespace LeaderBot {
-	/// <summary>
-	/// This is used to alleviate boilerplate code
-	/// </summary>
-	public class Util {
-		private static MongoClient Client;
-		private static IMongoDatabase Database;
-		private static IMongoCollection<BsonDocument> Collection;
+namespace LeaderBot.Utils {
+    /// <summary>
+    /// This is used to alleviate boilerplate code
+    /// </summary>
+    public class Util {
 
-		/// <summary>
-		/// Strings the equals.
-		/// </summary>
-		/// <returns><c>true</c>, if equals was strung, <c>false</c> otherwise.</returns>
-		/// <param name="a">The string to match</param>
-		/// <param name="b">The string to compare</param>
-		public static bool stringEquals(string a, string b) {
-			return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
-		}
+        /// <summary>
+        /// Strings the equals.
+        /// </summary>
+        /// <returns><c>true</c>, if equals was strung, <c>false</c> otherwise.</returns>
+        /// <param name="a">The string to match</param>
+        /// <param name="b">The string to compaSe</param>
+        public static bool StringEquals(string a, string b) {
+            return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+        }
 
-		/// <summary>
-		/// Gets the mongo collection and sets up the connection.
-		/// I am only passing in the collection name, because I am using only one database currently.
-		/// </summary>
-		/// <returns>The mongo collection</returns>
-		/// <param name="collectionName">Collection name in the MongoDB</param>
-		public static void SetupMongoDatabase() {
-			string connectionString = null;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-				connectionString = Resources.mongoconnectionserver;
-			else {
-				connectionString = Resources.mongoconnection;
-			}
-			Client = new MongoClient(connectionString);
-			Database = Client.GetDatabase("Leaderbot");
 
-		}
-
-		public static void SetupMongoCollection(string collectionName) {
-			Collection = Database.GetCollection<BsonDocument>(collectionName);
-		}
-
-		public static BsonDocument findBsonDocumentByFieldCriteria(string field, string criteria) {
-			var result = Collection.Find(filterDocumentByFieldCriteria(field, criteria)).FirstOrDefault();
-			return result;
-		}
-
-		public static BsonDocument findBsonDocumentByFieldCriteria(string field, ulong criteria) {
-			var result = Collection.Find(filterDocumentByFieldCriteria(field, criteria)).FirstOrDefault();
-			return result;
-		}
-
-		public static BsonDocument findBsonDocumentByFieldCriteria(string field, int criteria) {
-			var result = Collection.Find(filterDocumentByFieldCriteria(field, criteria)).FirstOrDefault();
-			return result;
-		}
-
-		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, string criteria) {
-			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
-			return filter;
-		}
-
-		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, ulong criteria) {
-			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
-			return filter;
-		}
-
-		public static FilterDefinition<BsonDocument> filterDocumentByFieldCriteria(string field, int criteria) {
-			var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
-			return filter;
-		}
-
-		public static void updateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria) {
-			var filter = filterDocumentByFieldCriteria(filterField, filterCriteria);
+		public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria) {
+			var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria);
 
 			var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
 
-			Collection.FindOneAndUpdateAsync(filter, update);
+			DatabaseUtils.GetMongoCollection.FindOneAndUpdateAsync(filter, update);
 		}
 
 		/// <summary>
@@ -97,10 +42,10 @@ namespace LeaderBot {
 		/// <param name="user">User to match to</param>
 		/// <param name="field">Field to update</param>
 		/// <param name="updateCount">the amount to increase the field by. Default is zero</param>
-		public static void updateDocument(ulong user, string field, int updateCount = 0) {
-			var filterUserName = filterDocumentByFieldCriteria("_id", user);
+		public static void UpdateDocument(ulong user, string field, int updateCount = 0) {
+			var filterUserName = DatabaseUtils.FilterMongoDocument("_id", user);
 			var update = new BsonDocument("$inc", new BsonDocument { { field, updateCount } });
-			Collection.FindOneAndUpdateAsync(filterUserName, update);
+			DatabaseUtils.GetMongoCollection.FindOneAndUpdateAsync(filterUserName, update);
 		}
 
 		/// <summary>
@@ -108,11 +53,11 @@ namespace LeaderBot {
 		/// </summary>
 		/// <returns>The user information</returns>
 		/// <param name="user">User to get the information from</param>
-		public static UserInfo getUserInformation(ulong user) {
+		public static UserInfo GetUserInformation(ulong user) {
 			UserInfo userInformation = null;
-            Util.SetupMongoCollection("userData");
+            DatabaseUtils.ChangeCollection("userData");
 
-			var doc = findBsonDocumentByFieldCriteria("_id", user);
+			var doc = DatabaseUtils.FindMongoDocument("_id", user);
 			if (doc != null) {
 				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
 			} else {
@@ -121,21 +66,21 @@ namespace LeaderBot {
 			return userInformation;
 		}
 
-		public static Shop getShopItem(int item){
+		public static Shop GetShopItem(int item){
 			Shop shopItem = null;
-			var doc = findBsonDocumentByFieldCriteria("_id", item);
+			var doc = DatabaseUtils.FindMongoDocument("_id", item);
 			if (doc != null) {
 				shopItem = BsonSerializer.Deserialize<Shop>(doc);
 			}
 			return shopItem;
 		}
 
-		public static PointsReceived getPointsReceived(string field, string criteria) {
+		public static PointsReceived GetPointsReceived(string field, string criteria) {
 			PointsReceived pointsReceived = null;
-			var doc = findBsonDocumentByFieldCriteria(field, criteria);
+			var doc = DatabaseUtils.FindMongoDocument(field, criteria);
 			if (doc == null) {
-				createNewDatePointsReceived(criteria);
-				doc = findBsonDocumentByFieldCriteria(field, criteria);
+				CreateNewDatePointsReceived(criteria);
+				doc = DatabaseUtils.FindMongoDocument(field, criteria);
 			}
 			if (doc != null) {
 				pointsReceived = BsonSerializer.Deserialize<PointsReceived>(doc);
@@ -146,20 +91,20 @@ namespace LeaderBot {
 			return pointsReceived;
 		}
 
-		public static void createNewDatePointsReceived(string date) {
+		public static void CreateNewDatePointsReceived(string date) {
 			var document = new BsonDocument {
-				{ "_id", Collection.CountDocuments(new BsonDocument())+1 },
+				{ "_id", DatabaseUtils.GetMongoCollection.CountDocuments(new BsonDocument())+1 },
 				{ "date", date },
 				{ "users",  new BsonArray{ } }
 				};
-			Collection.InsertOneAsync(document);
+			DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
 		}
 
 		public static List<Roles> LoadAllRolesFromServer() {
-			SetupMongoCollection("roles");
+			DatabaseUtils.ChangeCollection("roles");
 			List<Roles> allRolesInServer = new List<Roles>();
 
-			using (var cursor = Collection.Find(new BsonDocument()).ToCursor()) {
+			using (var cursor = DatabaseUtils.GetMongoCollection.Find(new BsonDocument()).ToCursor()) {
 				while (cursor.MoveNext()) {
 					foreach (var doc in cursor.Current) {
 						string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
@@ -167,11 +112,11 @@ namespace LeaderBot {
 					}
 				}
 			}
-			SetupMongoCollection("userData");
+			DatabaseUtils.ChangeCollection("userData");
 			return allRolesInServer;
 		}
 
-		public static void createUserInDatabase(SocketUser userName) {
+		public static void CreateUserInDatabase(SocketUser userName) {
 			var user = userName as SocketGuildUser;
 			var date = user.JoinedAt.ToString();
 			var document = new BsonDocument
@@ -190,10 +135,10 @@ namespace LeaderBot {
 				{ "totalAttack", 0 },
 				{ "totalDefense", 0 }
 			};
-			Collection.InsertOneAsync(document);
+			DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
 		}
 
-        public static void createUserInCompetition(SocketUser userName)
+        public static void CreateUserInCompetition(SocketUser userName)
         {
             var user = userName as SocketGuildUser;
             var document = new BsonDocument
@@ -202,12 +147,12 @@ namespace LeaderBot {
                 { "name", userName.ToString() },
                 { "credits", 10000 }
             };
-            Collection.InsertOneAsync(document);
+            DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
         }
-        public static UsersEntered getUsersInCompetition(string field, ulong criteria)
+        public static UsersEntered GetUsersInCompetition(string field, ulong criteria)
         {
             UsersEntered usersEntered = null;
-            var doc = findBsonDocumentByFieldCriteria(field, criteria);
+            var doc = DatabaseUtils.FindMongoDocument(field, criteria);
             if (doc == null)
             {
                 return null;
@@ -225,43 +170,43 @@ namespace LeaderBot {
         }
 
         //edit as needed
-        public static void updateDocumentField(ulong user, string field, BsonArray value) {
-			var doc = findBsonDocumentByFieldCriteria("_id", user);
+        public static void UpdateDocumentField(ulong user, string field, BsonArray value) {
+			var doc = DatabaseUtils.FindMongoDocument("_id", user);
 			if (doc != null) {
 				var update = Builders<BsonDocument>.Update.Set(field, value);
-				Collection.UpdateOneAsync(filterDocumentByFieldCriteria("_id", user), update);
+				DatabaseUtils.GetMongoCollection.UpdateOneAsync(DatabaseUtils.FilterMongoDocument("_id", user), update);
 			}
 		}
 
 
-		public static void createEquipmentInShop(string name, int atk, int def, int cost, int levelReq) {
-			SetupMongoCollection("shop");
+		public static void CreateEquipmentInShop(string name, int atk, int def, int cost, int levelReq) {
+			DatabaseUtils.ChangeCollection("shop");
 			var document = new BsonDocument
 			{
-				{ "_id", Collection.CountDocuments(new BsonDocument())+1 },
+				{ "_id", DatabaseUtils.GetMongoCollection.CountDocuments(new BsonDocument())+1 },
 				{ "name",  name},
 				{ "attack", atk },
 				{ "defence", def },
 				{ "cost",  cost },
 				{ "levelRequirement", levelReq }
 			};
-			Collection.InsertOneAsync(document);
-			SetupMongoCollection("userData");
+			DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+			DatabaseUtils.ChangeCollection("userData");
 		}
 
-		public static void createRoleInDatabase(string name, string description, int difficulty) {
-			SetupMongoCollection("roles");
+		public static void CreateRoleInDatabase(string name, string description, int difficulty) {
+            DatabaseUtils.ChangeCollection("roles");
 			var document = new BsonDocument
 			{
 				{ "name", name },
 				{ "description",  description},
 				{ "difficulty", difficulty }
 			};
-			Collection.InsertOneAsync(document);
-			SetupMongoCollection("userData");
+            DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+            DatabaseUtils.ChangeCollection("userData");
 		}
 
-		public static StringBuilder createLeaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
+		public static StringBuilder CreateLUpdateDocumenteaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.Append("```css\n");
 			string titleString = "Username".PadRight(30) + "| Total " + leaderboardName;
@@ -271,7 +216,7 @@ namespace LeaderBot {
 
 			foreach (var user in guildUsers) {
 				if (!user.IsBot) {
-					UserInfo userInfo = getUserInformation(user.Id);
+					UserInfo userInfo = GetUserInformation(user.Id);
 					if (userInfo != null) {
 						if (leaderboardName.Equals("Experience")) {
 							allUsers.Add(user as SocketGuildUser, userInfo.experience);

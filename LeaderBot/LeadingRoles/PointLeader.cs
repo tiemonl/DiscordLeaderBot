@@ -4,17 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using LeaderBot.Utils;
 
 namespace LeaderBot.LeadingRoles {
 	public class PointLeader {
 		public PointLeader() {
 		}
-		public static async Task checkForNewLeader(IReadOnlyCollection<IGuildUser> guildUsers, ulong channelID) {
+		public static async Task CheckForNewLeader(IReadOnlyCollection<IGuildUser> guildUsers, ulong channelID) {
 			IGuildUser userWithMostPoints = null;
 			long userPoints = 0;
 			foreach (var user in guildUsers) {
 				if (!user.IsBot) {
-					UserInfo userInfo = Util.getUserInformation(user.Id);
+					UserInfo userInfo = Util.GetUserInformation(user.Id);
 					if (userInfo != null) {
 						long currentUserPoints = userInfo.points;
 						if (currentUserPoints > userPoints) {
@@ -25,7 +26,7 @@ namespace LeaderBot.LeadingRoles {
 				}
 			}
 			var currentTorchHolder = userWithMostPoints as SocketGuildUser;
-			var role = currentTorchHolder.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, "Point Torch"));
+			var role = currentTorchHolder.Roles.FirstOrDefault(x => Util.StringEquals(x.Name, "Point Torch"));
 			if (!currentTorchHolder.Roles.Contains(role)) {
 				await RoleUtils.removeRoleFromUser(guildUsers, "Point Torch");
 				await RoleUtils.giveRoleToUser(userWithMostPoints as SocketGuildUser, "Point Torch", channelID);
