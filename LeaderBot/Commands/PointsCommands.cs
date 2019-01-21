@@ -16,7 +16,7 @@ namespace LeaderBot.Commands {
         }
 
         [Command("dailyPoints"), Summary("Adds points to user")]
-        public async Task dailyPoints() {
+        public async Task DailyPoints() {
             DatabaseUtils.ChangeCollection("pointsReceived");
             string currentDate = DateTime.Now.ToString("yyyyMMdd");
             PointsReceived pointsReceived = Util.GetPointsReceived("date", currentDate);
@@ -46,7 +46,7 @@ namespace LeaderBot.Commands {
         }
 
         [Command("getPoints"), Summary("gets user total points")]
-        public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName = null) {
+        public async Task GetPoints([Summary("The user to get point total from")] SocketGuildUser userName = null) {
             if (userName == null) {
                 userName = ((SocketGuildUser)Context.Message.Author);
             }
@@ -60,7 +60,7 @@ namespace LeaderBot.Commands {
         }
 
         [Command("bet"), Summary("bet with user total points")]
-        public async Task bet([Summary("Amount of points to bet")] int bettingPoints, [Summary("Side of coin picked.")] string coinSide) {
+        public async Task Bet([Summary("Amount of points to bet")] int bettingPoints, [Summary("Side of coin picked.")] string coinSide) {
             var user = ((SocketGuildUser)Context.Message.Author);
             var userId = user.Id;
             bool win = false;
