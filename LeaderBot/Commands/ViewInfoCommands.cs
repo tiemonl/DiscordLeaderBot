@@ -8,11 +8,10 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System.Text;
 using MongoDB.Driver;
+using LeaderBot.Utils;
 
 namespace LeaderBot {
 	public class ViewInfoCommands : ModuleBase {
-		Util methods = new Util();
-
 		public ViewInfoCommands() {
 		}
 
@@ -37,7 +36,6 @@ namespace LeaderBot {
 
 		[Command("rolecount"), Summary("Gets the role count of the current user")]
 		public async Task roleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified.")] SocketGuildUser user = null) {
-
 			try {
 				if (user == null) {
 					user = Context.Message.Author as SocketGuildUser;
@@ -66,9 +64,9 @@ namespace LeaderBot {
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
 		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
-			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => Util.stringEquals(x.Name, roleName));
+			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => Util.StringEquals(x.Name, roleName));
 			var allRoles = Util.LoadAllRolesFromServer();
-			var role = allRoles.Find(x => Util.stringEquals(x.Name, selectedRole.Name));
+			var role = allRoles.Find(x => Util.StringEquals(x.Name, selectedRole.Name));
 			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}\n\t-Difficulty: {role.Difficulty}");
 		}
 
@@ -79,7 +77,7 @@ namespace LeaderBot {
 				if (user == null) {
 					user = ((SocketGuildUser) Context.Message.Author);
 				}
-				UserInfo userInfo = Util.getUserInformation(user.Id);
+				UserInfo userInfo = Util.GetUserInformation(user.Id);
 				if (userInfo != null) {
 					var currentExp = userInfo.experience;
 					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
@@ -107,7 +105,7 @@ namespace LeaderBot {
 		[Command("createEquipment"), Summary("Returns user experience")]
 		public async Task createEquipment(string name, int atk, int def, int cost, int levelReq) {
 			try {
-				Util.createEquipmentInShop(name, atk, def, cost, levelReq);
+				Util.CreateEquipmentInShop(name, atk, def, cost, levelReq);
 				await ReplyAsync($"Equipment Created");
 			} catch (Exception ex) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
@@ -117,7 +115,7 @@ namespace LeaderBot {
 		[Command("getstats"), Summary("Returns user experience")]
 		public async Task getStats() {
 			var user = ((SocketGuildUser)Context.Message.Author);
-			UserInfo info = Util.getUserInformation(user.Id);
+			UserInfo info = Util.GetUserInformation(user.Id);
 			StringBuilder sb = new StringBuilder();
 			sb.Append($"{user}'s stats\n");
 			sb.Append($"\t-**Attack**: {info.totalAttack}\n");

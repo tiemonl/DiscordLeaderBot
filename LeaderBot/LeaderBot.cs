@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using LeaderBot.LeadingRoles;
+using LeaderBot.Utils;
 
 namespace LeaderBot {
 	public class LeaderBot {
@@ -35,9 +36,9 @@ namespace LeaderBot {
 			}
 			string token = GetKey.getKey(key);
 
-			Util.SetupMongoDatabase();
-			Util.SetupMongoCollection("userData");
-			RoleUtils.setUpClient(client);
+			DatabaseUtils.SetupMongoDatabase();
+			DatabaseUtils.ChangeCollection("userData");
+			RoleUtils.SetUpClient(client);
 
 			await commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
 			await client.LoginAsync(TokenType.Bot, token);
@@ -50,9 +51,9 @@ namespace LeaderBot {
 		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
 			var user = reaction.User.Value as SocketGuildUser;
 
-			Util.updateDocument(user.Id, "reactionCount", 1);
+			Util.UpdateDocument(user.Id, "reactionCount", 1);
 
-			await RoleUtils.reactionCountRoles(channel, reaction, user);
+			await RoleUtils.ReactionCountRoles(channel, reaction, user);
 		}
 
 
@@ -99,11 +100,11 @@ namespace LeaderBot {
 				var guildUsers = await context.Guild.GetUsersAsync();
 
 				if (!msg.Author.IsBot) {
-					Util.updateDocument(userId, "numberOfMessages", 1);
-					Util.updateDocument(userId, "experience", msg.Content.Length);
-					await RoleUtils.messageCountRoles(msg.Author, channelID);
-					await RoleUtils.dateJoinedRoles(msg.Author, channelID);
-					await PointLeader.checkForNewLeader(guildUsers, channelID);
+					Util.UpdateDocument(userId, "numberOfMessages", 1);
+					Util.UpdateDocument(userId, "experience", msg.Content.Length);
+					await RoleUtils.MessageCountRoles(msg.Author, channelID);
+					await RoleUtils.DateJoinedRoles(msg.Author, channelID);
+					await PointLeader.CheckForNewLeader(guildUsers, channelID);
 				}
 				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
 					if (msg.MentionedUsers.ToList().Count >= 1) {
