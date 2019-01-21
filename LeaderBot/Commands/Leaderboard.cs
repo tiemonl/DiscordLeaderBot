@@ -17,35 +17,35 @@ namespace LeaderBot.Commands {
 		}
 
 		[Command("role"), Summary("Gets the role leaderboard"), Alias("roles")]
-		public async Task getRoleLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
+		public async Task GetRoleLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
 			var guildUsers = await Context.Guild.GetUsersAsync();
 			StringBuilder leaderboard = Util.CreateLeaderboard("Roles", guildUsers, userCount);
 			await ReplyAsync($"{leaderboard.ToString()}");
 		}
 
 		[Command("experience"), Summary("Gets the role leaderboard"), Alias("exp")]
-		public async Task getExpLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
+		public async Task GetExpLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
 			var guildUsers = await Context.Guild.GetUsersAsync();
 			StringBuilder leaderboard = Util.CreateLeaderboard("Experience", guildUsers, userCount);
 			await ReplyAsync($"{leaderboard.ToString()}");
 		}
 
 		[Command("points"), Summary("Gets the role leaderboard"), Alias("point")]
-		public async Task getPointsLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
+		public async Task GetPointsLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
 			var guildUsers = await Context.Guild.GetUsersAsync();
 			StringBuilder leaderboard = Util.CreateLeaderboard("Points", guildUsers, userCount);
 			await ReplyAsync($"{leaderboard.ToString()}");
 		}
 
 		[Command("messages"), Summary("Gets the role leaderboard"), Alias("message")]
-		public async Task getMessageCountLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
+		public async Task GetMessageCountLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
 			var guildUsers = await Context.Guild.GetUsersAsync();
 			StringBuilder leaderboard = Util.CreateLeaderboard("Messages", guildUsers, userCount);
 			await ReplyAsync($"{leaderboard.ToString()}");
 		}
 
 		[Command("reactions"), Summary("Gets the role leaderboard"), Alias("reaction")]
-		public async Task getReactionCountLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
+		public async Task GetReactionCountLeaderboard([Summary("Places to see on leaderboard")] int userCount = 10) {
 			var guildUsers = await Context.Guild.GetUsersAsync();
 			StringBuilder leaderboard = Util.CreateLeaderboard("Reactions", guildUsers, userCount);
 			await ReplyAsync($"{leaderboard.ToString()}");

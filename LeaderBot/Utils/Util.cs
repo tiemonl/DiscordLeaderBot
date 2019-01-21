@@ -206,7 +206,7 @@ namespace LeaderBot.Utils {
             DatabaseUtils.ChangeCollection("userData");
 		}
 
-		public static StringBuilder CreateLUpdateDocumenteaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
+		public static StringBuilder CreateLeaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.Append("```css\n");
 			string titleString = "Username".PadRight(30) + "| Total " + leaderboardName;
