@@ -40,9 +40,9 @@ namespace LeaderBot.Commands {
 			if (userInfo.points < shopItem.cost) {
 				await ReplyAsync($"User does not have enough points to buy item.");
 			} else {
-				Util.UpdateDocument(userId, "points", shopItem.cost*-1);
-				Util.UpdateDocument(userId, "totalAttack", shopItem.attack);
-				Util.UpdateDocument(userId, "totalDefense", shopItem.defence);
+				DatabaseUtils.DecrementDocument(userId, "points", shopItem.cost);
+                DatabaseUtils.IncrementDocument(userId, "totalAttack", shopItem.attack);
+                DatabaseUtils.IncrementDocument(userId, "totalDefense", shopItem.defence);
 				embed.WithTitle("Item bought!");
 				embed.WithThumbnailUrl(user.GetAvatarUrl());
 				embed.AddField("Attack", userInfo.totalAttack + shopItem.attack, true);

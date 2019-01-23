@@ -49,14 +49,14 @@ namespace LeaderBot.Competition {
                 if (UserUnderValue > value) //win
                 {
                     var winnings = (bet * factor) - bet;
-                    Util.UpdateDocument(userId, "credits", (int)winnings);
+                    DatabaseUtils.IncrementDocument(userId, "credits", (int)winnings);
                     embed.WithColor(Color.Green);
                     embed.AddField("Result", "Winner", true);
                     embed.AddField("Random Value", value, true);
                     embed.AddField("Winnings", (int)winnings, true);
                     embed.AddField("Total points", userInCompetition.credits + (int)winnings, true);
                 } else {
-                    Util.UpdateDocument(userId, "credits", -bet);
+                    DatabaseUtils.DecrementDocument(userId, "credits", bet);
                     embed.WithColor(Color.Red);
                     embed.AddField("Result", "Loser", true);
                     embed.AddField("Random Value", value, true);
