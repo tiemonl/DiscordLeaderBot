@@ -13,7 +13,7 @@ namespace LeaderBot.Utils {
         /// </summary>
         public static void SetupMongoDatabase() {
             var connectionString = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? 
-                Resources.mongoconnectionserver : Resources.mongoworkconnection;
+                Resources.mongoconnectionserver : Resources.mongoconnection;
             MyMongoClient = new MongoClient(connectionString);
             MyMongoDatabase = MyMongoClient.GetDatabase("Leaderbot");
 
