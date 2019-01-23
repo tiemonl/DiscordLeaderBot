@@ -38,7 +38,7 @@ namespace LeaderBot.Commands {
                     points *= JACKPOT_MULTIPLIER;
                     await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
                 }
-                Util.UpdateDocument(user.Id, "points", points);
+                DatabaseUtils.IncrementDocument(user.Id, "points", points);
 
                 await ReplyAsync($"{user} earned {points} points!");
             }
@@ -89,18 +89,18 @@ namespace LeaderBot.Commands {
 
                     if (Util.StringEquals(result, coinSide)) {
                         win = true;
-                        Util.UpdateDocument(userId, "loseCoinflipStreak", userInfo.loseCoinflipStreak * -1);
-                        Util.UpdateDocument(userId, "winCoinflipStreak", 1);
-                        Util.UpdateDocument(userId, "points", bettingPoints);
+                        DatabaseUtils.DecrementDocument(userId, "loseCoinflipStreak", userInfo.loseCoinflipStreak);
+                        DatabaseUtils.IncrementDocument(userId, "winCoinflipStreak", 1);
+                        DatabaseUtils.IncrementDocument(userId, "points", bettingPoints);
                         embed.WithColor(Color.Green);
                         embed.AddField("Result", "Winner", true);
                         embed.AddField("Coin side", result, true);
                         embed.AddField("Winning streak", userInfo.winCoinflipStreak + 1, true);
                         embed.AddField("Total points", currentPoints + bettingPoints, true);
                     } else {
-                        Util.UpdateDocument(userId, "winCoinflipStreak", userInfo.winCoinflipStreak * -1);
-                        Util.UpdateDocument(userId, "loseCoinflipStreak", 1);
-                        Util.UpdateDocument(userId, "points", bettingPoints * -1);
+                        DatabaseUtils.DecrementDocument(userId, "winCoinflipStreak", userInfo.winCoinflipStreak);
+                        DatabaseUtils.IncrementDocument(userId, "loseCoinflipStreak", 1);
+                        DatabaseUtils.DecrementDocument(userId, "points", bettingPoints);
                         embed.WithColor(Color.Red);
                         embed.AddField("Result", "Loser", true);
                         embed.AddField("Coin side", result, true);

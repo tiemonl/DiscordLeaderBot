@@ -33,19 +33,7 @@ namespace LeaderBot.Utils {
 
 			var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
 
-			DatabaseUtils.GetMongoCollection.FindOneAndUpdateAsync(filter, update);
-		}
-
-		/// <summary>
-		/// Updates the document.
-		/// </summary>
-		/// <param name="user">User to match to</param>
-		/// <param name="field">Field to update</param>
-		/// <param name="updateCount">the amount to increase the field by. Default is zero</param>
-		public static void UpdateDocument(ulong user, string field, int updateCount = 0) {
-			var filterUserName = DatabaseUtils.FilterMongoDocument("_id", user);
-			var update = new BsonDocument("$inc", new BsonDocument { { field, updateCount } });
-			DatabaseUtils.GetMongoCollection.FindOneAndUpdateAsync(filterUserName, update);
+			DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
 		}
 
 		/// <summary>
@@ -93,18 +81,18 @@ namespace LeaderBot.Utils {
 
 		public static void CreateNewDatePointsReceived(string date) {
 			var document = new BsonDocument {
-				{ "_id", DatabaseUtils.GetMongoCollection.CountDocuments(new BsonDocument())+1 },
+				{ "_id", DatabaseUtils.MyMongoCollection.CountDocuments(new BsonDocument())+1 },
 				{ "date", date },
 				{ "users",  new BsonArray{ } }
 				};
-			DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
 		}
 
 		public static List<Roles> LoadAllRolesFromServer() {
 			DatabaseUtils.ChangeCollection("roles");
 			List<Roles> allRolesInServer = new List<Roles>();
 
-			using (var cursor = DatabaseUtils.GetMongoCollection.Find(new BsonDocument()).ToCursor()) {
+			using (var cursor = DatabaseUtils.MyMongoCollection.Find(new BsonDocument()).ToCursor()) {
 				while (cursor.MoveNext()) {
 					foreach (var doc in cursor.Current) {
 						string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
@@ -135,7 +123,7 @@ namespace LeaderBot.Utils {
 				{ "totalAttack", 0 },
 				{ "totalDefense", 0 }
 			};
-			DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
 		}
 
         public static void CreateUserInCompetition(SocketUser userName)
@@ -147,7 +135,7 @@ namespace LeaderBot.Utils {
                 { "name", userName.ToString() },
                 { "credits", 10000 }
             };
-            DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+            DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
         }
         public static UsersEntered GetUsersInCompetition(string field, ulong criteria)
         {
@@ -174,7 +162,7 @@ namespace LeaderBot.Utils {
 			var doc = DatabaseUtils.FindMongoDocument("_id", user);
 			if (doc != null) {
 				var update = Builders<BsonDocument>.Update.Set(field, value);
-				DatabaseUtils.GetMongoCollection.UpdateOneAsync(DatabaseUtils.FilterMongoDocument("_id", user), update);
+				DatabaseUtils.MyMongoCollection.UpdateOneAsync(DatabaseUtils.FilterMongoDocument("_id", user), update);
 			}
 		}
 
@@ -183,14 +171,14 @@ namespace LeaderBot.Utils {
 			DatabaseUtils.ChangeCollection("shop");
 			var document = new BsonDocument
 			{
-				{ "_id", DatabaseUtils.GetMongoCollection.CountDocuments(new BsonDocument())+1 },
+				{ "_id", DatabaseUtils.MyMongoCollection.CountDocuments(new BsonDocument())+1 },
 				{ "name",  name},
 				{ "attack", atk },
 				{ "defence", def },
 				{ "cost",  cost },
 				{ "levelRequirement", levelReq }
 			};
-			DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
 			DatabaseUtils.ChangeCollection("userData");
 		}
 
@@ -202,7 +190,7 @@ namespace LeaderBot.Utils {
 				{ "description",  description},
 				{ "difficulty", difficulty }
 			};
-            DatabaseUtils.GetMongoCollection.InsertOneAsync(document);
+            DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
             DatabaseUtils.ChangeCollection("userData");
 		}
 

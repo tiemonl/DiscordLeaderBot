@@ -1,67 +1,124 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace LeaderBot.Utils {
-    public class DatabaseUtils {
-        public DatabaseUtils() {
-        }
-
-        public static IMongoDatabase GetDatabase { get; private set; }
-        public static IMongoCollection<BsonDocument> GetMongoCollection { get; private set; }
-        public static MongoClient GetMongoClient { get; private set; }
-
+    public static class DatabaseUtils {
+        public static IMongoDatabase MyMongoDatabase { get; private set; }
+        public static IMongoCollection<BsonDocument> MyMongoCollection { get; private set; }
+        public static MongoClient MyMongoClient { get; private set; }
 
         /// <summary>
-        /// Gets the mongo collection and sets up the connection.
-        /// I am only passing in the Database name, because I am using only one database currently.
+        /// Sets up the mongo connection to the server
         /// </summary>
-        /// <returns>The mongo collection</returns>
         public static void SetupMongoDatabase() {
-            string connectionString = null;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                connectionString = Resources.mongoconnectionserver;
-            else {
-                connectionString = Resources.mongoconnection;
-            }
-            GetMongoClient = new MongoClient(connectionString);
-            GetDatabase = GetMongoClient.GetDatabase("Leaderbot");
+            var connectionString = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? 
+                Resources.mongoconnectionserver : Resources.mongoworkconnection;
+            MyMongoClient = new MongoClient(connectionString);
+            MyMongoDatabase = MyMongoClient.GetDatabase("Leaderbot");
 
         }
 
+        /// <summary>
+        /// Used to change between collections during runtime.
+        /// </summary>
+        /// <param name="collectionName">Name of the collection to switch to</param>
         public static void ChangeCollection(string collectionName) {
-            GetMongoCollection = GetDatabase.GetCollection<BsonDocument>(collectionName);
+            MyMongoCollection = MyMongoDatabase.GetCollection<BsonDocument>(collectionName);
         }
 
+        #region FindMongoDocument overloads
+        /// <summary>
+        /// Finds the mongo document specified.
+        /// </summary>
+        /// <returns>The found mongo document. Returns null if not found. </returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field. ie: "name" : "Liam"</param>
         public static BsonDocument FindMongoDocument(string field, string criteria) {
-            var result = DatabaseUtils.GetMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
+            var result = MyMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
             return result;
         }
 
+        /// <summary>
+        /// Finds the mongo document specified.
+        /// </summary>
+        /// <returns>The found mongo document. Returns null if not found. </returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field. ie. "_id" : "181240813492109312"</param>
         public static BsonDocument FindMongoDocument(string field, ulong criteria) {
-            var result = DatabaseUtils.GetMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
+            var result = MyMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
             return result;
         }
 
+        /// <summary>
+        /// Finds the mongo document specified.
+        /// </summary>
+        /// <returns>The found mongo document. Returns null if not found. </returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field. ie. "points" : "1400"</param>
         public static BsonDocument FindMongoDocument(string field, int criteria) {
-            var result = DatabaseUtils.GetMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
+            var result = MyMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
             return result;
         }
+        #endregion
 
+        #region FilterMongoDocument overloads
+        /// <summary>
+        /// Filters the specified mongo document.
+        /// </summary>
+        /// <returns>The mongo document.</returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field.</param>
         public static FilterDefinition<BsonDocument> FilterMongoDocument(string field, string criteria) {
             var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
             return filter;
         }
 
+        /// <summary>
+        /// Filters the specified mongo document.
+        /// </summary>
+        /// <returns>The mongo document.</returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field.</param>
         public static FilterDefinition<BsonDocument> FilterMongoDocument(string field, ulong criteria) {
             var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
             return filter;
         }
 
+        /// <summary>
+        /// Filters the specified mongo document.
+        /// </summary>
+        /// <returns>The mongo document.</returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field.</param>
         public static FilterDefinition<BsonDocument> FilterMongoDocument(string field, int criteria) {
             var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
             return filter;
+        }
+        #endregion
+
+        /// <summary>
+        /// Increments the specifed document field for the specified user by the given amount.
+        /// </summary>
+        /// <param name="user">User's document to find.</param>
+        /// <param name="field">Field to update in the document.</param>
+        /// <param name="incrementAmount">Increment amount.</param>
+        public static void IncrementDocument(ulong user, string field, int incrementAmount = 0) {
+            var filterUserName = FilterMongoDocument("_id", user);
+            var update = new BsonDocument("$inc", new BsonDocument { { field, incrementAmount } });
+            MyMongoCollection.FindOneAndUpdateAsync(filterUserName, update);
+        }
+
+        /// <summary>
+        /// Decrements the specified document field for the specified user by the given amount.
+        /// </summary>
+        /// <param name="user">User's document to find.</param>
+        /// <param name="field">Field to update in the document.</param>
+        /// <param name="decrementAmount">Decrement amount.</param>
+        public static void DecrementDocument(ulong user, string field, int decrementAmount = 0) {
+            var filterUserName = FilterMongoDocument("_id", user);
+            var update = new BsonDocument("$inc", new BsonDocument { { field, -decrementAmount } });
+            MyMongoCollection.FindOneAndUpdateAsync(filterUserName, update);
         }
     }
 }

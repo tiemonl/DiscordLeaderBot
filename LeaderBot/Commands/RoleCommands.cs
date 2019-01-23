@@ -129,7 +129,7 @@ namespace LeaderBot {
         [Command("givePoints"), Summary("give specificed user points")]
         public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
             var user = userName as SocketUser;
-            Util.UpdateDocument(user.Id, "points", points);
+            DatabaseUtils.IncrementDocument(user.Id, "points", points);
             UserInfo userInfo = Util.GetUserInformation(user.Id);
             if (userInfo != null) {
                 var currentPoints = userInfo.points;
