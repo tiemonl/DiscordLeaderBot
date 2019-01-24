@@ -120,5 +120,55 @@ namespace LeaderBot.Utils {
             var update = new BsonDocument("$inc", new BsonDocument { { field, -decrementAmount } });
             MyMongoCollection.FindOneAndUpdateAsync(filterUserName, update);
         }
+
+        #region UpdateDocumentValue overloads
+        /// <summary>
+        /// Updates the document value for the given field.
+        /// </summary>
+        /// <param name="user">User's document to find.</param>
+        /// <param name="field">Field to update in the document.</param>
+        /// <param name="value">Value to change.</param>
+        public static void UpdateDocumentValue(ulong user, string field, string value) {
+            var filter = FilterMongoDocument("_id", user);
+            var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+            MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        /// <summary>
+        /// Updates the document value for the given field.
+        /// </summary>
+        /// <param name="user">User's document to find.</param>
+        /// <param name="field">Field to update in the document.</param>
+        /// <param name="value">Value to change.</param>
+        public static void UpdateDocumentValue(ulong user, string field, int value) {
+            var filter = FilterMongoDocument("_id", user);
+            var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+            MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        /// <summary>
+        /// Updates the document value for the given field.
+        /// </summary>
+        /// <param name="user">User's document to find.</param>
+        /// <param name="field">Field to update in the document.</param>
+        /// <param name="value">Value to change.</param>
+        public static void UpdateDocumentValue(ulong user, string field, long value) {
+            var filter = FilterMongoDocument("_id", user);
+            var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+            MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        /// <summary>
+        /// Updates the document value for the given field.
+        /// </summary>
+        /// <param name="user">User's document to find.</param>
+        /// <param name="field">Field to update in the document.</param>
+        /// <param name="value">Value to change.</param>
+        public static void UpdateDocumentValue(ulong user, string field, bool value) {
+            var filter = FilterMongoDocument("_id", user);
+            var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+            MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+        }
+        #endregion
     }
 }
