@@ -60,6 +60,17 @@ namespace LeaderBot.Utils {
             var result = MyMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
             return result;
         }
+
+        /// <summary>
+        /// Finds the mongo document specified.
+        /// </summary>
+        /// <returns>The found mongo document. Returns null if not found. </returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field. ie. "isBeta" : "true"</param>
+        public static BsonDocument FindMongoDocument(string field, bool criteria) {
+            var result = MyMongoCollection.Find(FilterMongoDocument(field, criteria)).FirstOrDefault();
+            return result;
+        }
         #endregion
 
         #region FilterMongoDocument overloads
@@ -92,6 +103,17 @@ namespace LeaderBot.Utils {
         /// <param name="field">Field to match to.</param>
         /// <param name="criteria">Criteria for the specified field.</param>
         public static FilterDefinition<BsonDocument> FilterMongoDocument(string field, int criteria) {
+            var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
+            return filter;
+        }
+
+        /// <summary>
+        /// Filters the specified mongo document.
+        /// </summary>
+        /// <returns>The mongo document.</returns>
+        /// <param name="field">Field to match to.</param>
+        /// <param name="criteria">Criteria for the specified field.</param>
+        public static FilterDefinition<BsonDocument> FilterMongoDocument(string field, bool criteria) {
             var filter = Builders<BsonDocument>.Filter.Eq(field, criteria);
             return filter;
         }
