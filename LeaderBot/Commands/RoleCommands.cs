@@ -12,7 +12,7 @@ using MongoDB.Bson;
 using LeaderBot.Utils;
 
 namespace LeaderBot {
-    [Group("admin")]
+    [Group("admin"), RequireUserPermission(GuildPermission.Administrator)]
     public class RoleCommands : ModuleBase {
         public Random rand = new Random();
 
@@ -101,7 +101,7 @@ namespace LeaderBot {
             var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Reverse();
             StringBuilder sb = new StringBuilder();
             foreach (var role in allRoles) {
-                String s = $"**{role.Name}** | {role.Description} | {role.Difficulty}\n";
+                string s = $"**{role.Name}** | {role.Description} | {role.Difficulty}\n";
                 if (sb.ToString().Length + s.Length > 2000) {
                     await ReplyAsync(sb.ToString());
                     sb.Clear();
