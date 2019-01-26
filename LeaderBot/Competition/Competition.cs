@@ -13,7 +13,6 @@ namespace LeaderBot.Competition {
 
         [Command("enter"), Summary("enters the user in the competition")]
         public async Task enterCompetition() {
-            DatabaseUtils.ChangeCollection("competition");
             var user = ((SocketGuildUser)Context.Message.Author);
             UsersEntered userInCompetition = Util.GetUsersInCompetition("_id", user.Id);
 
@@ -25,12 +24,10 @@ namespace LeaderBot.Competition {
                 Util.CreateUserInCompetition(user);
                 await ReplyAsync($"You have joined the competition, Good Luck!");
             }
-            DatabaseUtils.ChangeCollection("userData");
         }
 
         [Command("rollunder"), Alias("bet")]
         public async Task rollUnder(int UserUnderValue, int bet) {
-            DatabaseUtils.ChangeCollection("competition");
             var user = ((SocketGuildUser)Context.Message.Author);
             var userId = user.Id;
             var embed = new EmbedBuilder();
@@ -49,14 +46,14 @@ namespace LeaderBot.Competition {
                 if (UserUnderValue > value) //win
                 {
                     var winnings = (bet * factor) - bet;
-                    DatabaseUtils.IncrementDocument(userId, "credits", (int)winnings);
+                    DatabaseUtils.IncrementDocument(userId, "credits", (int)winnings, "competition");
                     embed.WithColor(Color.Green);
                     embed.AddField("Result", "Winner", true);
                     embed.AddField("Random Value", value, true);
                     embed.AddField("Winnings", (int)winnings, true);
                     embed.AddField("Total points", userInCompetition.credits + (int)winnings, true);
                 } else {
-                    DatabaseUtils.DecrementDocument(userId, "credits", bet);
+                    DatabaseUtils.DecrementDocument(userId, "credits", bet, "competition");
                     embed.WithColor(Color.Red);
                     embed.AddField("Result", "Loser", true);
                     embed.AddField("Random Value", value, true);
@@ -65,8 +62,6 @@ namespace LeaderBot.Competition {
                 }
                 await ReplyAsync("", embed: embed.Build());
             }
-
-            DatabaseUtils.ChangeCollection("userData");
         }
     }
 }

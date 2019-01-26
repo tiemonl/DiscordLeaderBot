@@ -13,7 +13,6 @@ namespace LeaderBot.Commands {
 		}
 		[Command("view")]
 		public async Task viewShop(int item) {
-			DatabaseUtils.ChangeCollection("shop");
 			Shop shopItem = Util.GetShopItem(item);
 			var embed = new EmbedBuilder();
 			Random r = new Random();
@@ -24,16 +23,13 @@ namespace LeaderBot.Commands {
 			embed.AddField("Level Requirement", shopItem.levelRequirement, true);
 			embed.WithColor(new Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256)));
 			await ReplyAsync("", embed: embed.Build());
-			DatabaseUtils.ChangeCollection("userData");
 		}
 
 		[Command("buy")]
 		public async Task buyItemFromShop(int item) {
 			var user = ((SocketGuildUser)Context.Message.Author);
 			var userId = user.Id;
-			DatabaseUtils.ChangeCollection("shop");
 			Shop shopItem = Util.GetShopItem(item);
-			DatabaseUtils.ChangeCollection("userData");
 			UserInfo userInfo = Util.GetUserInformation(userId);
 			var embed = new EmbedBuilder();
 			Random r = new Random();

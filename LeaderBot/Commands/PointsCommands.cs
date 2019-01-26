@@ -17,7 +17,6 @@ namespace LeaderBot.Commands {
 
         [Command("dailyPoints"), Summary("Adds points to user")]
         public async Task DailyPoints() {
-            DatabaseUtils.ChangeCollection("pointsReceived");
             string currentDate = DateTime.Now.ToString("yyyyMMdd");
             PointsReceived pointsReceived = Util.GetPointsReceived("date", currentDate);
             var user = Context.Message.Author;
@@ -25,11 +24,9 @@ namespace LeaderBot.Commands {
 
             if (users.Contains(user.ToString())) {
                 TimeSpan untilReset = DateTime.Today.AddDays(1) - DateTime.Now;
-                DatabaseUtils.ChangeCollection("userData");
                 await ReplyAsync($"{user} has already reclaimed the daily points.\nClaim points in {untilReset.Hours}h {untilReset.Minutes}m");
             } else {
                 Util.UpdateArray("date", currentDate, "users", user.ToString());
-                DatabaseUtils.ChangeCollection("userData");
                 Random rand = new Random();
                 var points = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
                 var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
@@ -39,7 +36,6 @@ namespace LeaderBot.Commands {
                     await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
                 }
                 DatabaseUtils.IncrementDocument(user.Id, "points", points);
-
                 await ReplyAsync($"{user} earned {points} points!");
             }
 

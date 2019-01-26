@@ -12,20 +12,20 @@ using MongoDB.Bson.Serialization;
 using LeaderBot.Competition;
 
 namespace LeaderBot.Utils {
-    /// <summary>
-    /// This is used to alleviate boilerplate code
-    /// </summary>
-    public class Util {
+	/// <summary>
+	/// This is used to alleviate boilerplate code
+	/// </summary>
+	public class Util {
 
-        /// <summary>
-        /// Strings the equals.
-        /// </summary>
-        /// <returns><c>true</c>, if equals was strung, <c>false</c> otherwise.</returns>
-        /// <param name="a">The string to match</param>
-        /// <param name="b">The string to compaSe</param>
-        public static bool StringEquals(string a, string b) {
-            return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
-        }
+		/// <summary>
+		/// Strings the equals.
+		/// </summary>
+		/// <returns><c>true</c>, if equals was strung, <c>false</c> otherwise.</returns>
+		/// <param name="a">The string to match</param>
+		/// <param name="b">The string to compaSe</param>
+		public static bool StringEquals(string a, string b) {
+			return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+		}
 
 
 		public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria) {
@@ -43,9 +43,8 @@ namespace LeaderBot.Utils {
 		/// <param name="user">User to get the information from</param>
 		public static UserInfo GetUserInformation(ulong user) {
 			UserInfo userInformation = null;
-            DatabaseUtils.ChangeCollection("userData");
 
-			var doc = DatabaseUtils.FindMongoDocument("_id", user);
+			var doc = DatabaseUtils.FindMongoDocument("_id", user, "userData");
 			if (doc != null) {
 				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
 			} else {
@@ -54,9 +53,9 @@ namespace LeaderBot.Utils {
 			return userInformation;
 		}
 
-		public static Shop GetShopItem(int item){
+		public static Shop GetShopItem(int item) {
 			Shop shopItem = null;
-			var doc = DatabaseUtils.FindMongoDocument("_id", item);
+			var doc = DatabaseUtils.FindMongoDocument("_id", item, "shop");
 			if (doc != null) {
 				shopItem = BsonSerializer.Deserialize<Shop>(doc);
 			}
@@ -65,14 +64,13 @@ namespace LeaderBot.Utils {
 
 		public static PointsReceived GetPointsReceived(string field, string criteria) {
 			PointsReceived pointsReceived = null;
-			var doc = DatabaseUtils.FindMongoDocument(field, criteria);
+			var doc = DatabaseUtils.FindMongoDocument(field, criteria, "pointsReceived");
 			if (doc == null) {
 				CreateNewDatePointsReceived(criteria);
-				doc = DatabaseUtils.FindMongoDocument(field, criteria);
+				doc = DatabaseUtils.FindMongoDocument(field, criteria, "pointsReceived");
 			}
 			if (doc != null) {
 				pointsReceived = BsonSerializer.Deserialize<PointsReceived>(doc);
-
 			} else {
 				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getPointsReceived", "Could not find date!"));
 			}
@@ -123,42 +121,38 @@ namespace LeaderBot.Utils {
 				{ "totalAttack", 0 },
 				{ "totalDefense", 0 }
 			};
+			DatabaseUtils.ChangeCollection("userData");
 			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
 		}
 
-        public static void CreateUserInCompetition(SocketUser userName)
-        {
-            var user = userName as SocketGuildUser;
-            var document = new BsonDocument
-            {
-                {"_id", (long)user.Id},
-                { "name", userName.ToString() },
-                { "credits", 10000 }
-            };
-            DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
-        }
-        public static UsersEntered GetUsersInCompetition(string field, ulong criteria)
-        {
-            UsersEntered usersEntered = null;
-            var doc = DatabaseUtils.FindMongoDocument(field, criteria);
-            if (doc == null)
-            {
-                return null;
-            }
-            if (doc != null)
-            {
-                usersEntered = BsonSerializer.Deserialize<UsersEntered>(doc);
+		public static void CreateUserInCompetition(SocketUser userName) {
+			var user = userName as SocketGuildUser;
+			var document = new BsonDocument
+			{
+				{"_id", (long)user.Id},
+				{ "name", userName.ToString() },
+				{ "credits", 10000 }
+			};
+			DatabaseUtils.ChangeCollection("competition");
+			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
+		}
+		public static UsersEntered GetUsersInCompetition(string field, ulong criteria) {
+			UsersEntered usersEntered = null;
+			var doc = DatabaseUtils.FindMongoDocument(field, criteria, "competition");
+			if (doc == null) {
+				return null;
+			}
+			if (doc != null) {
+				usersEntered = BsonSerializer.Deserialize<UsersEntered>(doc);
+			} else {
+				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUsersInCompetition", "Could not find date!"));
+			}
+			return usersEntered;
+		}
 
-            }
-            else
-            {
-                Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getUsersInCompetition", "Could not find date!"));
-            }
-            return usersEntered;
-        }
-
-        //edit as needed
-        public static void UpdateDocumentField(ulong user, string field, BsonArray value) {
+		//edit as needed
+		//FIXME: needs to be moved and worked on
+		public static void UpdateDocumentField(ulong user, string field, BsonArray value) {
 			var doc = DatabaseUtils.FindMongoDocument("_id", user);
 			if (doc != null) {
 				var update = Builders<BsonDocument>.Update.Set(field, value);
@@ -183,15 +177,15 @@ namespace LeaderBot.Utils {
 		}
 
 		public static void CreateRoleInDatabase(string name, string description, int difficulty) {
-            DatabaseUtils.ChangeCollection("roles");
+			DatabaseUtils.ChangeCollection("roles");
 			var document = new BsonDocument
 			{
 				{ "name", name },
 				{ "description",  description},
 				{ "difficulty", difficulty }
 			};
-            DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
-            DatabaseUtils.ChangeCollection("userData");
+			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);
+			DatabaseUtils.ChangeCollection("userData");
 		}
 
 		public static StringBuilder CreateLeaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
