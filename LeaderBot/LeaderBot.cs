@@ -50,13 +50,9 @@ namespace LeaderBot {
 
 		private async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction) {
 			var user = reaction.User.Value as SocketGuildUser;
-
-            DatabaseUtils.IncrementDocument(user.Id, "reactionCount", 1);
-
+			DatabaseUtils.IncrementDocument(user.Id, "reactionCount", 1);
 			await RoleUtils.ReactionCountRoles(channel, reaction, user);
 		}
-
-
 
 		private Task Log(LogMessage msg) {
 			Logger.Log(msg);
@@ -87,8 +83,8 @@ namespace LeaderBot {
 			string guildName = "";
 			int argPos = 0;
 			try {
+				DatabaseUtils.ChangeCollection("userData");
 				var msg = messageParam as SocketUserMessage;
-
 				ulong userId = msg.Author.Id;
 				userName = GetUserName(msg.Author);
 				channelName = msg.Channel?.Name ?? "NULL";
@@ -100,8 +96,8 @@ namespace LeaderBot {
 				var guildUsers = await context.Guild.GetUsersAsync();
 
 				if (!msg.Author.IsBot) {
-                    DatabaseUtils.IncrementDocument(userId, "numberOfMessages", 1);
-                    DatabaseUtils.IncrementDocument(userId, "experience", msg.Content.Length);
+					DatabaseUtils.IncrementDocument(userId, "numberOfMessages", 1);
+					DatabaseUtils.IncrementDocument(userId, "experience", msg.Content.Length);
 					await RoleUtils.MessageCountRoles(msg.Author, channelID);
 					await RoleUtils.DateJoinedRoles(msg.Author, channelID);
 					await PointLeader.CheckForNewLeader(guildUsers, channelID);
