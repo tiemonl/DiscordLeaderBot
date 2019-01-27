@@ -308,6 +308,7 @@ namespace LeaderBot.Utils {
 			var update = new BsonDocument("$set", new BsonDocument { { field, (long)value } });
 			MyMongoCollection.FindOneAndUpdateAsync(filter, update);
 		}
+
 		/// <summary>
 		/// Updates the document value for the given field.
 		/// </summary>
@@ -318,6 +319,58 @@ namespace LeaderBot.Utils {
 		public static void UpdateDocumentValue(string idValue, string field, ulong value, string collectionName = "userData") {
 			var filter = FilterMongoDocument("_id", idValue, collectionName);
 			var update = new BsonDocument("$set", new BsonDocument { { field, (long)value } });
+			MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+		}
+
+		/// <summary>
+		/// Updates the document value for the given field.
+		/// </summary>
+		/// <param name="idValue">idValue's document to find.</param>
+		/// <param name="field">Field to update in the document.</param>
+		/// <param name="value">Value to change.</param>
+		/// <param name="collectionName">Collection to edit, default value of "userData"</param>
+		public static void UpdateDocumentValue(string idValue, string field, string value, string collectionName = "userData") {
+			var filter = FilterMongoDocument("_id", idValue, collectionName);
+			var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+			MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+		}
+
+		/// <summary>
+		/// Updates the document value for the given field.
+		/// </summary>
+		/// <param name="idValue">idValue's document to find.</param>
+		/// <param name="field">Field to update in the document.</param>
+		/// <param name="value">Value to change.</param>
+		/// <param name="collectionName">Collection to edit, default value of "userData"</param>
+		public static void UpdateDocumentValue(string idValue, string field, int value, string collectionName = "userData") {
+			var filter = FilterMongoDocument("_id", idValue, collectionName);
+			var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+			MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+		}
+
+		/// <summary>
+		/// Updates the document value for the given field.
+		/// </summary>
+		/// <param name="idValue">idValue's document to find.</param>
+		/// <param name="field">Field to update in the document.</param>
+		/// <param name="value">Value to change.</param>
+		/// <param name="collectionName">Collection to edit, default value of "userData"</param>
+		public static void UpdateDocumentValue(string idValue, string field, bool value, string collectionName = "userData") {
+			var filter = FilterMongoDocument("_id", idValue, collectionName);
+			var update = new BsonDocument("$set", new BsonDocument { { field, value } });
+			MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+		}
+
+		/// <summary>
+		/// Updates the document value for the given field.
+		/// </summary>
+		/// <param name="idValue">idValue's document to find.</param>
+		/// <param name="field">Field to update in the document.</param>
+		/// <param name="value">Value to change.</param>
+		/// <param name="collectionName">Collection to edit, default value of "userData"</param>
+		public static void UpdateDocumentValue(string idValue, string field, long value, string collectionName = "userData") {
+			var filter = FilterMongoDocument("_id", idValue, collectionName);
+			var update = new BsonDocument("$set", new BsonDocument { { field, value } });
 			MyMongoCollection.FindOneAndUpdateAsync(filter, update);
 		}
 		#endregion
