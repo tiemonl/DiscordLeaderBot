@@ -1,7 +1,4 @@
-﻿
-using MongoDB.Bson;
-
-namespace LeaderBot {
+﻿namespace LeaderBot {
 	public class UserInfo {
 		public long _id { get; set; }
 		public string name { get; set; }
