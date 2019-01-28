@@ -43,7 +43,6 @@ namespace LeaderBot.Utils {
 		/// <param name="user">User to get the information from</param>
 		public static UserInfo GetUserInformation(ulong user) {
 			UserInfo userInformation = null;
-
 			var doc = DatabaseUtils.FindMongoDocument("_id", user, "userData");
 			if (doc != null) {
 				userInformation = BsonSerializer.Deserialize<UserInfo>(doc);
@@ -62,7 +61,16 @@ namespace LeaderBot.Utils {
 			return shopItem;
 		}
 
-		public static PointsReceived GetPointsReceived(string field, string criteria) {
+        public static PointBank GetPointBank(string bank) {
+            PointBank pointBank = null;
+            var doc = DatabaseUtils.FindMongoDocument("_id", bank, "pointBank");
+            if (doc != null) {
+                pointBank = BsonSerializer.Deserialize<PointBank>(doc);
+            }
+            return pointBank;
+        }
+
+        public static PointsReceived GetPointsReceived(string field, string criteria) {
 			PointsReceived pointsReceived = null;
 			var doc = DatabaseUtils.FindMongoDocument(field, criteria, "pointsReceived");
 			if (doc == null) {
