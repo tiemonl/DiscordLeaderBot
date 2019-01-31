@@ -28,8 +28,8 @@ namespace LeaderBot.Utils {
 		}
 
 
-		public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria) {
-			var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria);
+		public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
+			var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
 
 			var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
 
@@ -70,25 +70,24 @@ namespace LeaderBot.Utils {
             return pointBank;
         }
 
-        public static PointsReceived GetPointsReceived(string field, string criteria) {
-			PointsReceived pointsReceived = null;
-			var doc = DatabaseUtils.FindMongoDocument(field, criteria, "pointsReceived");
+        public static DailyPoints GetDailyPoints(string field, string criteria) {
+            DailyPoints dailyPoints = null;
+			var doc = DatabaseUtils.FindMongoDocument(field, criteria, "dailyPoints");
 			if (doc == null) {
-				CreateNewDatePointsReceived(criteria);
-				doc = DatabaseUtils.FindMongoDocument(field, criteria, "pointsReceived");
+				CreateNewDailyPoints(criteria);
+				doc = DatabaseUtils.FindMongoDocument(field, criteria, "dailyPoints");
 			}
 			if (doc != null) {
-				pointsReceived = BsonSerializer.Deserialize<PointsReceived>(doc);
+                dailyPoints = BsonSerializer.Deserialize<DailyPoints>(doc);
 			} else {
-				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.getPointsReceived", "Could not find date!"));
+				Logger.Log(new LogMessage(LogSeverity.Error, $"{typeof(Util).Name}.GetDailyPoints", "Could not find date!"));
 			}
-			return pointsReceived;
+			return dailyPoints;
 		}
 
-		public static void CreateNewDatePointsReceived(string date) {
+		public static void CreateNewDailyPoints(string date) {
 			var document = new BsonDocument {
-				{ "_id", DatabaseUtils.MyMongoCollection.CountDocuments(new BsonDocument())+1 },
-				{ "date", date },
+				{ "_id", date},
 				{ "users",  new BsonArray{ } }
 				};
 			DatabaseUtils.MyMongoCollection.InsertOneAsync(document);

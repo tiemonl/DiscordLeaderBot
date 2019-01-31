@@ -18,22 +18,22 @@ namespace LeaderBot.Commands {
         [Command("dailyPoints"), Summary("Adds points to user")]
         public async Task DailyPoints() {
             string currentDate = DateTime.Now.ToString("yyyyMMdd");
-            PointsReceived pointsReceived = Util.GetPointsReceived("date", currentDate);
+            DailyPoints dailyPoints = Util.GetDailyPoints("_id", currentDate);
             var user = Context.Message.Author;
-            List<string> users = pointsReceived.users.ToList();
+            List<string> users = dailyPoints.users.ToList();
 
             if (users.Contains(user.ToString())) {
                 TimeSpan untilReset = DateTime.Today.AddDays(1) - DateTime.Now;
                 await ReplyAsync($"{user} has already reclaimed the daily points.\nClaim points in {untilReset.Hours}h {untilReset.Minutes}m");
             } else {
-                Util.UpdateArray("date", currentDate, "users", user.ToString());
+                Util.UpdateArray("_id", currentDate, "users", user.ToString(),"dailyPoints");
                 Random rand = new Random();
                 var points = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
                 var jackpot = rand.Next(MIN_DAILY_POINTS, MAX_DAILY_POINTS + 1);
                 await RoleUtils.DailyPointsRoles(user as SocketGuildUser, Context.Message.Channel.Id, MIN_DAILY_POINTS, MAX_DAILY_POINTS, points, jackpot);
                 if (points.Equals(jackpot)) {
                     points *= JACKPOT_MULTIPLIER;
-                    await ReplyAsync($"{ user} has hit the __***JACKPOT!***__");
+                    await ReplyAsync($"{user} has hit the __***JACKPOT!***__");
                 }
                 DatabaseUtils.IncrementDocument(user.Id, "points", points);
                 await ReplyAsync($"{user} earned {points} points!");
