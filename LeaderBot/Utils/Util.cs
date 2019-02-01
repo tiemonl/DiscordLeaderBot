@@ -63,7 +63,7 @@ namespace LeaderBot.Utils {
 
         public static PointBank GetPointBank(string bank) {
             PointBank pointBank = null;
-            var doc = DatabaseUtils.FindMongoDocument("_id", bank, "pointBank");
+            var doc = DatabaseUtils.FindMongoDocument("_id", bank, "pointBanks");
             if (doc != null) {
                 pointBank = BsonSerializer.Deserialize<PointBank>(doc);
             }
