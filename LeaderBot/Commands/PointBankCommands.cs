@@ -39,8 +39,8 @@ namespace LeaderBot.Commands
             UserInfo userInfo = Util.GetUserInformation(Context.User.Id);
             PointBank pointBank = Util.GetPointBank(bank.ToLower());
             EmbedBuilder embed = new EmbedBuilder();
-            if (amount <= 100) {
-                await ReplyAsync("Cannot take out a loan less than 100 points!");
+            if (amount <= pointBank.minWithdrawal) {
+                await ReplyAsync($"Cannot take out a loan less than {pointBank.minWithdrawal} points!");
             } else if (amount > pointBank.currentCredits){
                 await ReplyAsync($"Cannot take out a loan which exceeds the amount of money in the vault!\nCurrent money in the vault is {pointBank.currentCredits}");
             } else {
