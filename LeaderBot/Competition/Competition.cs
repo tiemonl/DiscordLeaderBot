@@ -12,26 +12,26 @@ namespace LeaderBot.Competition {
         }
 
         [Command("enter"), Summary("enters the user in the competition")]
-        public async Task enterCompetition() {
+        public async Task EnterCompetition() {
             var user = ((SocketGuildUser)Context.Message.Author);
-            UsersEntered userInCompetition = Util.GetUsersInCompetition("_id", user.Id);
+            UsersEntered userInCompetition = ObjectUtils.GetUsersInCompetition("_id", user.Id);
 
             if (user.JoinedAt > DateTime.Today.AddDays(-7)) {
                 await ReplyAsync($"You have joined the server too recently to enter!");
             } else if (userInCompetition != null) {
                 await ReplyAsync($"You have already joined the competition!");
             } else {
-                Util.CreateUserInCompetition(user);
+				CreateObjectUtils.CreateUserInCompetition(user);
                 await ReplyAsync($"You have joined the competition, Good Luck!");
             }
         }
 
         [Command("rollunder"), Alias("bet")]
-        public async Task rollUnder(int UserUnderValue, int bet) {
+        public async Task RollUnder(int UserUnderValue, int bet) {
             var user = ((SocketGuildUser)Context.Message.Author);
             var userId = user.Id;
             var embed = new EmbedBuilder();
-            UsersEntered userInCompetition = Util.GetUsersInCompetition("_id", userId);
+            UsersEntered userInCompetition = ObjectUtils.GetUsersInCompetition("_id", userId);
             if (UserUnderValue < 2 || UserUnderValue > 99) {
                 await ReplyAsync($"Undervalue must be between 2 and 99");
             } else if (userInCompetition.credits < bet) {

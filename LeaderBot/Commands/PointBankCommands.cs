@@ -22,7 +22,7 @@ namespace LeaderBot.Commands
         [Command("info"), Summary("returns specified bank information")]
         public async Task GetBankInfo([Remainder] string bank) {
             EmbedBuilder embed = new EmbedBuilder();
-            PointBank pointBank = Util.GetPointBank(bank.ToLower());
+            PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
             if (pointBank.Equals(null)) {
                 await ReplyAsync($"{bank} does not exist");
             } else {
@@ -36,8 +36,8 @@ namespace LeaderBot.Commands
 
         [Command("takeloan"), Summary("gets bank total points")]
         public async Task TakeLoan(int amount, [Remainder] string bank) {
-            UserInfo userInfo = Util.GetUserInformation(Context.User.Id);
-            PointBank pointBank = Util.GetPointBank(bank.ToLower());
+            UserInfo userInfo = ObjectUtils.GetUserInformation(Context.User.Id);
+            PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
             EmbedBuilder embed = new EmbedBuilder();
             if (amount <= pointBank.minWithdrawal) {
                 await ReplyAsync($"Cannot take out a loan less than {pointBank.minWithdrawal} points!");

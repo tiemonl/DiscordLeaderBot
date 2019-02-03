@@ -73,7 +73,7 @@ namespace LeaderBot {
 			var id = currentGuild.DefaultChannel.Id;
 			await Logger.Log(new LogMessage(LogSeverity.Info, $"{GetType().Name}.UserJoined", $"{userName} joined {currentGuild}"));
 
-			await RoleUtils.createUserInDatabase(userName, id);
+			await RoleUtils.CreateUserInDatabase(userName, id);
 		}
 
 
@@ -104,7 +104,7 @@ namespace LeaderBot {
 				}
 				if (msg.Author.Id == 181240813492109312 || msg.Author.Id == 195567858133106697) {
 					if (msg.MentionedUsers.ToList().Count >= 1) {
-						await RoleUtils.giveRoleToUser(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
+						await RoleUtils.GiveRoleToUser(msg.MentionedUsers.FirstOrDefault() as SocketGuildUser, "???", msg.Channel.Id);
 					}
 				}
 

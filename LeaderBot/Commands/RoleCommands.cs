@@ -21,7 +21,7 @@ namespace LeaderBot {
 
         //https://docs.stillu.cc/
         [Command("createRoles"), Summary("Creates a role in the guild")]
-        public async Task createRoles() {
+        public async Task CreateRoles() {
             List<string> currentGuildRoles = new List<string>();
             foreach (SocketRole guildRoles in ((SocketGuild)Context.Guild).Roles) {
                 currentGuildRoles.Add(guildRoles.Name);
@@ -38,11 +38,11 @@ namespace LeaderBot {
         }
 
         [Command("updateUsers"), Summary("edit's user info in database")]
-        public async Task updateUsers() {
+        public async Task UpdateUsers() {
             StringBuilder sb = new StringBuilder();
             foreach (var user in (await Context.Guild.GetUsersAsync())) {
                 if (!user.IsBot) {
-                    var userInfo = Util.GetUserInformation(user.Id);
+                    var userInfo = ObjectUtils.GetUserInformation(user.Id);
 
                     foreach (SocketRole userRole in ((SocketGuildUser)user).Roles) {
                         if (!userInfo.roles.Contains(userRole.ToString()))
@@ -55,7 +55,7 @@ namespace LeaderBot {
         }
 
         [Command("giveRole"), Summary("Adds role to specified user"), RequireUserPermission(GuildPermission.Administrator)]
-        public async Task giveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add")] string roleName) {
+        public async Task GiveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add")] string roleName) {
 
             var userInfo = user as SocketUser;
             var currentGuild = user.Guild as SocketGuild;
@@ -67,7 +67,7 @@ namespace LeaderBot {
         }
 
         [Command("reorderRoles"), Summary("Reorders roles based on difficulty"), RequireUserPermission(GuildPermission.Administrator)]
-        public async Task reorderRoles() {
+        public async Task ReorderRoles() {
             var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Select(x => x.Name).ToList();
             var allGuildRoles = Context.Guild.Roles.OrderBy(y => allRoles.IndexOf(y.Name)).ToList();
 
@@ -86,14 +86,14 @@ namespace LeaderBot {
         }
 
         [Command("makeRole"), Summary("Creates a new role in the server"), RequireUserPermission(GuildPermission.Administrator)]
-        public async Task makeRoles(string name, string description, int difficulty) {
-            Util.CreateRoleInDatabase(name, description, difficulty);
+        public async Task MakeRoles(string name, string description, int difficulty) {
+			CreateObjectUtils.CreateRoleInDatabase(name, description, difficulty);
             await ReplyAsync($"Role has been inserted into the database");
-            await createRoles();
+            await CreateRoles();
         }
 
         [Command("rolesList"), Summary("prints role list"), RequireUserPermission(GuildPermission.Administrator)]
-        public async Task printRolesList() {
+        public async Task PrintRolesList() {
             //delete command and previous role list
             var items = await Context.Channel.GetMessagesAsync(2).FlattenAsync();
             await ((ITextChannel)Context.Channel).DeleteMessagesAsync(items);
@@ -113,7 +113,7 @@ namespace LeaderBot {
         }
 
         [Command("updateUserFields"), Summary("Returns user experience")]
-        public async Task updateUSersField(string field) {
+        public async Task UpdateUSersField(string field) {
             try {
                 foreach (var user in await Context.Guild.GetUsersAsync()) {
                     if (!user.IsBot) {
@@ -127,10 +127,10 @@ namespace LeaderBot {
         }
 
         [Command("givePoints"), Summary("give specificed user points")]
-        public async Task getPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
+        public async Task GetPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
             var user = userName as SocketUser;
             DatabaseUtils.IncrementDocument(user.Id, "points", points);
-            UserInfo userInfo = Util.GetUserInformation(user.Id);
+            UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             if (userInfo != null) {
                 var currentPoints = userInfo.points;
                 await ReplyAsync($"{user} has {currentPoints} points!");

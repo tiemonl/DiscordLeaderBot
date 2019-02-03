@@ -12,8 +12,8 @@ namespace LeaderBot.Commands {
 		public ShopCommands() {
 		}
 		[Command("view")]
-		public async Task viewShop(int item) {
-			Shop shopItem = Util.GetShopItem(item);
+		public async Task ViewShop(int item) {
+			Shop shopItem = ObjectUtils.GetShopItem(item);
 			var embed = new EmbedBuilder();
 			Random r = new Random();
 			embed.WithTitle(shopItem.name);
@@ -26,11 +26,11 @@ namespace LeaderBot.Commands {
 		}
 
 		[Command("buy")]
-		public async Task buyItemFromShop(int item) {
+		public async Task BuyItemFromShop(int item) {
 			var user = ((SocketGuildUser)Context.Message.Author);
 			var userId = user.Id;
-			Shop shopItem = Util.GetShopItem(item);
-			UserInfo userInfo = Util.GetUserInformation(userId);
+			Shop shopItem = ObjectUtils.GetShopItem(item);
+			UserInfo userInfo = ObjectUtils.GetUserInformation(userId);
 			var embed = new EmbedBuilder();
 			Random r = new Random();
 			if (userInfo.points < shopItem.cost) {

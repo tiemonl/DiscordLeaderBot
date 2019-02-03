@@ -16,7 +16,7 @@ namespace LeaderBot {
 		}
 
 		[Command("help"), Summary("Get's a list of all the commands"), Alias("Commands", "Commandlist")]
-		public async Task showCommands() {
+		public async Task ShowCommands() {
 			await ReplyAsync("Parameters: <required> [optional]\n" +
 								"`-help`, shows all available commands\n" +
 								"`-rolecount [User]`, gets your current amount of roles if no user is specified, otherwise returns rolecount of user specified.\n" +
@@ -35,7 +35,7 @@ namespace LeaderBot {
 		}
 
 		[Command("rolecount"), Summary("Gets the role count of the current user")]
-		public async Task roleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified.")] SocketGuildUser user = null) {
+		public async Task RoleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified.")] SocketGuildUser user = null) {
 			try {
 				if (user == null) {
 					user = Context.Message.Author as SocketGuildUser;
@@ -49,7 +49,7 @@ namespace LeaderBot {
 		}
 
 		[Command("missingRoles"), Summary("Gives a list of currently not attained roles")]
-		public async Task missingRoles() {
+		public async Task MissingRoles() {
 			var allRoles = Util.LoadAllRolesFromServer().Select(a => a.Name).ToList();
 			var allUserRoles = ((SocketGuildUser) Context.Message.Author).Roles.Select(b => b.Name).ToList();
 			StringBuilder missingroles = new StringBuilder();
@@ -63,7 +63,7 @@ namespace LeaderBot {
 		}
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
-		public async Task getRoleDesc([Summary("The role to get the description for")] string roleName) {
+		public async Task GetRoleDesc([Summary("The role to get the description for")] string roleName) {
 			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => Util.StringEquals(x.Name, roleName));
 			var allRoles = Util.LoadAllRolesFromServer();
 			var role = allRoles.Find(x => Util.StringEquals(x.Name, selectedRole.Name));
@@ -71,13 +71,13 @@ namespace LeaderBot {
 		}
 
 		[Command("getExperience"), Summary("Returns user experience"), Alias("getexp")]
-		public async Task getExperience([Summary("The user to get exp total from")] SocketGuildUser user = null) {
+		public async Task GetExperience([Summary("The user to get exp total from")] SocketGuildUser user = null) {
 			try {
 
 				if (user == null) {
 					user = ((SocketGuildUser) Context.Message.Author);
 				}
-				UserInfo userInfo = Util.GetUserInformation(user.Id);
+				UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
 				if (userInfo != null) {
 					var currentExp = userInfo.experience;
 					var level = Math.Round(Math.Pow(currentExp, 1 / 1.3) / 100);
@@ -90,7 +90,7 @@ namespace LeaderBot {
 		}
 
 		[Command("test"), Summary("Returns user experience")]
-		public async Task test() {
+		public async Task Test() {
 			try {
 				var userName = ((SocketGuildUser) Context.Message.Author);
 				var date = DateTime.Parse(userName.JoinedAt.ToString());
@@ -103,9 +103,9 @@ namespace LeaderBot {
 		}
 
 		[Command("createEquipment"), Summary("Returns user experience")]
-		public async Task createEquipment(string name, int atk, int def, int cost, int levelReq) {
+		public async Task CreateEquipment(string name, int atk, int def, int cost, int levelReq) {
 			try {
-				Util.CreateEquipmentInShop(name, atk, def, cost, levelReq);
+				CreateObjectUtils.CreateEquipmentInShop(name, atk, def, cost, levelReq);
 				await ReplyAsync($"Equipment Created");
 			} catch (Exception ex) {
 				await Logger.Log(new LogMessage(LogSeverity.Error, GetType().Name + ".createEquiment", "Unexpected Exception", ex));
@@ -113,9 +113,9 @@ namespace LeaderBot {
 		}
 
 		[Command("getstats"), Summary("Returns user experience")]
-		public async Task getStats() {
+		public async Task GetStats() {
 			var user = ((SocketGuildUser)Context.Message.Author);
-			UserInfo info = Util.GetUserInformation(user.Id);
+			UserInfo info = ObjectUtils.GetUserInformation(user.Id);
 			StringBuilder sb = new StringBuilder();
 			sb.Append($"{user}'s stats\n");
 			sb.Append($"\t-**Attack**: {info.totalAttack}\n");
