@@ -18,7 +18,7 @@ namespace LeaderBot.Commands {
         [Command("dailyPoints"), Summary("Adds points to user")]
         public async Task DailyPoints() {
             string currentDate = DateTime.Now.ToString("yyyyMMdd");
-            DailyPoints dailyPoints = Util.GetDailyPoints("_id", currentDate);
+            DailyPoints dailyPoints = ObjectUtils.GetDailyPoints("_id", currentDate);
             var user = Context.Message.Author;
             List<string> users = dailyPoints.users.ToList();
 
@@ -47,7 +47,7 @@ namespace LeaderBot.Commands {
                 userName = ((SocketGuildUser)Context.Message.Author);
             }
             var user = userName as SocketUser;
-            UserInfo userInfo = Util.GetUserInformation(user.Id);
+            UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             if (userInfo != null) {
                 var currentPoints = userInfo.points;
                 await ReplyAsync($"{user} has {currentPoints} points!");
@@ -62,7 +62,7 @@ namespace LeaderBot.Commands {
             bool win = false;
             var embed = new EmbedBuilder();
             embed.WithTitle("Coin Toss");
-            UserInfo userInfo = Util.GetUserInformation(user.Id);
+            UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             if (userInfo != null) {
                 var currentPoints = userInfo.points;
                 if (bettingPoints > currentPoints) {
