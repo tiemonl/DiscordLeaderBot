@@ -125,7 +125,8 @@ namespace LeaderBot {
 				var currentGuild = user.Guild as SocketGuild;
 				var role = currentGuild.Roles.FirstOrDefault(x => Util.StringEquals(x.Name, roleName));
 				if ((user as SocketGuildUser).Roles.Contains(role)) {
-					await user.RemoveRoleAsync(role);
+                    Util.UpdateRemoveArray("name", user.ToString(), "roles", role.ToString());
+                    await user.RemoveRoleAsync(role);
 					break;
 				}
 			}
