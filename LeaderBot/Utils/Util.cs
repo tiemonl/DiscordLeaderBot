@@ -15,7 +15,7 @@ namespace LeaderBot.Utils {
 	/// <summary>
 	/// This is used to alleviate boilerplate code
 	/// </summary>
-	public class Util {
+	public static class Util {
 
 		/// <summary>
 		/// Strings the equals.
@@ -34,8 +34,16 @@ namespace LeaderBot.Utils {
 
 			DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
 		}
-		
-		public static List<Roles> LoadAllRolesFromServer() {
+
+        public static void UpdateRemoveArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
+            var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
+
+            var update = Builders<BsonDocument>.Update.Pull(arrayField, arrayCriteria);
+
+            DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        public static List<Roles> LoadAllRolesFromServer() {
 			DatabaseUtils.ChangeCollection("roles");
 			List<Roles> allRolesInServer = new List<Roles>();
 
