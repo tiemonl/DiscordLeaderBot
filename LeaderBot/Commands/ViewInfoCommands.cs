@@ -63,7 +63,7 @@ namespace LeaderBot {
 		}
 
 		[Command("getRoleDesc"), Summary("Returns role description")]
-		public async Task GetRoleDesc([Summary("The role to get the description for")] string roleName) {
+		public async Task GetRoleDesc([Summary("The role to get the description for"), Remainder] string roleName) {
 			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => Util.StringEquals(x.Name, roleName));
 			var allRoles = Util.LoadAllRolesFromServer();
 			var role = allRoles.Find(x => Util.StringEquals(x.Name, selectedRole.Name));
