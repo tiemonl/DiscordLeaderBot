@@ -7,9 +7,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using LeaderBot.Objects;
-using MongoDB.Bson.Serialization;
-using LeaderBot.Competition;
+using System.Reflection;
 
 namespace LeaderBot.Utils {
 	/// <summary>
@@ -26,21 +24,33 @@ namespace LeaderBot.Utils {
 		public static bool StringEquals(string a, string b) {
 			return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 		}
-		
-		public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
-			var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
 
-			var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
-
-			DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
-		}
+        public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
+            if (doc != null) {
+                var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
+                if (docArray.Contains(arrayCriteria)) {
+                    Logger.Log(new LogMessage(LogSeverity.Warning, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateArray", $"Array already contains {arrayCriteria}"));
+                    return;
+                }
+                var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
+                var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
+                DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+            }
+        }
 
         public static void UpdateRemoveArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
-            var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
-
-            var update = Builders<BsonDocument>.Update.Pull(arrayField, arrayCriteria);
-
-            DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
+            if (doc != null) {
+                var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
+                if (!docArray.Contains(arrayCriteria)) {
+                    Logger.Log(new LogMessage(LogSeverity.Error, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateRemoveArray", $"Array does not contain {arrayCriteria}"));
+                    return;
+                }
+                var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
+                var update = Builders<BsonDocument>.Update.Pull(arrayField, arrayCriteria);
+                DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+            }
         }
 
         public static List<Roles> LoadAllRolesFromServer() {

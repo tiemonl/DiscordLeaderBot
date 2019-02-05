@@ -35,7 +35,7 @@ namespace LeaderBot {
 		}
 
 		[Command("rolecount"), Summary("Gets the role count of the current user")]
-		public async Task RoleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified.")] SocketGuildUser user = null) {
+		public async Task RoleCount([Summary("user to get role of. Defaults to user who sent the message if no user is specified."), Remainder] SocketGuildUser user = null) {
 			try {
 				if (user == null) {
 					user = Context.Message.Author as SocketGuildUser;
@@ -71,7 +71,7 @@ namespace LeaderBot {
 		}
 
 		[Command("getExperience"), Summary("Returns user experience"), Alias("getexp")]
-		public async Task GetExperience([Summary("The user to get exp total from")] SocketGuildUser user = null) {
+		public async Task GetExperience([Summary("The user to get exp total from"), Remainder] SocketGuildUser user = null) {
 			try {
 
 				if (user == null) {

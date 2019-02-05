@@ -55,7 +55,7 @@ namespace LeaderBot {
         }
 
         [Command("giveRole"), Summary("Adds role to specified user"), RequireUserPermission(GuildPermission.Administrator)]
-        public async Task GiveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add")] string roleName) {
+        public async Task GiveRole([Summary("The user to add role to")] SocketGuildUser user, [Summary("The role to add"), Remainder] string roleName) {
 
             var userInfo = user as SocketUser;
             var currentGuild = user.Guild as SocketGuild;
@@ -127,7 +127,7 @@ namespace LeaderBot {
         }
 
         [Command("givePoints"), Summary("give specificed user points")]
-        public async Task GetPoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
+        public async Task GivePoints([Summary("The user to get point total from")] SocketGuildUser userName, int points) {
             var user = userName as SocketUser;
             DatabaseUtils.IncrementDocument(user.Id, "points", points);
             UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
