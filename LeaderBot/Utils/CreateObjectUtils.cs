@@ -65,7 +65,7 @@ namespace LeaderBot.Utils
 		}
 
 		public static void CreateRoleInDatabase(string name, string description, int difficulty) {
-			DatabaseUtils.ChangeCollection("rolesNew");
+			DatabaseUtils.ChangeCollection("roles");
 			var document = new BsonDocument
 			{
 				{ "_id", name },

@@ -28,11 +28,11 @@ namespace LeaderBot {
             }
 
             foreach (var role in Util.LoadAllRolesFromServer()) {
-                if (!currentGuildRoles.Contains(role.Name)) {
+                if (!currentGuildRoles.Contains(role._id)) {
                     var randColor = new Color(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
-                    await Context.Guild.CreateRoleAsync(role.Name, GuildPermissions.None, randColor);
-                    await Logger.Log(new LogMessage(LogSeverity.Verbose, GetType().Name + ".createRoles", "Added role to server: " + role.Name));
-                    await ReplyAsync($"Added role: {role.Name}\nHow to get: {role.Description}");
+                    await Context.Guild.CreateRoleAsync(role._id, GuildPermissions.None, randColor);
+                    await Logger.Log(new LogMessage(LogSeverity.Verbose, GetType().Name + ".createRoles", "Added role to server: " + role._id));
+                    await ReplyAsync($"Added role: {role._id}\nHow to get: {role.description}");
                 }
             }
         }
@@ -68,7 +68,7 @@ namespace LeaderBot {
 
         [Command("reorderRoles"), Summary("Reorders roles based on difficulty"), RequireUserPermission(GuildPermission.Administrator)]
         public async Task ReorderRoles() {
-            var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Select(x => x.Name).ToList();
+            var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.difficulty).Select(x => x._id).ToList();
             var allGuildRoles = Context.Guild.Roles.OrderBy(y => allRoles.IndexOf(y.Name)).ToList();
 
             //reorder leaderbot roles to be at the top for hierarchy purposes
@@ -87,7 +87,7 @@ namespace LeaderBot {
 
         [Command("makeRole"), Summary("Creates a new role in the server"), RequireUserPermission(GuildPermission.Administrator)]
         public async Task MakeRoles(string name, string description, int difficulty) {
-			CreateObjectUtils.CreateRoleInDatabase(name, description, difficulty);
+            CreateObjectUtils.CreateRoleInDatabase(name, description, difficulty);
             await ReplyAsync($"Role has been inserted into the database");
             await CreateRoles();
         }
@@ -98,10 +98,10 @@ namespace LeaderBot {
             var items = await Context.Channel.GetMessagesAsync(2).FlattenAsync();
             await ((ITextChannel)Context.Channel).DeleteMessagesAsync(items);
 
-            var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.Difficulty).Reverse();
+            var allRoles = Util.LoadAllRolesFromServer().OrderBy(x => x.difficulty).Reverse();
             StringBuilder sb = new StringBuilder();
             foreach (var role in allRoles) {
-                string s = $"**{role.Name}** | {role.Description} | {role.Difficulty}\n";
+                string s = $"**{role._id}** | {role.description} | {role.difficulty}\n";
                 if (sb.ToString().Length + s.Length > 2000) {
                     await ReplyAsync(sb.ToString());
                     sb.Clear();
@@ -139,11 +139,11 @@ namespace LeaderBot {
         }
 
         [Command("moveroles")]
-        public async Task MoveRoles() {
+        public void MoveRoles() {
             var rol = Util.LoadAllRolesFromServer();
             foreach (var r in rol) {
-                DatabaseUtils.ChangeCollection("rolesNew");
-                CreateObjectUtils.CreateRoleInDatabase(r.Name, r.Description, r.Difficulty);
+                DatabaseUtils.ChangeCollection("roles");
+                CreateObjectUtils.CreateRoleInDatabase(r._id, r.description, r.difficulty);
             }
         }
     }
