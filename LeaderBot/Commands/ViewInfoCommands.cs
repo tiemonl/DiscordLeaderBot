@@ -50,7 +50,7 @@ namespace LeaderBot {
 
 		[Command("missingRoles"), Summary("Gives a list of currently not attained roles")]
 		public async Task MissingRoles() {
-			var allRoles = Util.LoadAllRolesFromServer().Select(a => a.Name).ToList();
+			var allRoles = Util.LoadAllRolesFromServer().Select(a => a._id).ToList();
 			var allUserRoles = ((SocketGuildUser) Context.Message.Author).Roles.Select(b => b.Name).ToList();
 			StringBuilder missingroles = new StringBuilder();
 
@@ -66,8 +66,8 @@ namespace LeaderBot {
 		public async Task GetRoleDesc([Summary("The role to get the description for"), Remainder] string roleName) {
 			var selectedRole = Context.Guild.Roles.FirstOrDefault(x => Util.StringEquals(x.Name, roleName));
 			var allRoles = Util.LoadAllRolesFromServer();
-			var role = allRoles.Find(x => Util.StringEquals(x.Name, selectedRole.Name));
-			await ReplyAsync($"To get ***{role.Name}***\n\t-{role.Description}\n\t-Difficulty: {role.Difficulty}");
+			var role = allRoles.Find(x => Util.StringEquals(x._id, selectedRole.Name));
+			await ReplyAsync($"To get ***{role._id}***\n\t-{role.description}\n\t-Difficulty: {role.difficulty}");
 		}
 
 		[Command("getExperience"), Summary("Returns user experience"), Alias("getexp")]

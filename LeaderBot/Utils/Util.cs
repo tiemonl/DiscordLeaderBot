@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 
 namespace LeaderBot.Utils {
 	/// <summary>
@@ -60,8 +61,7 @@ namespace LeaderBot.Utils {
 			using (var cursor = DatabaseUtils.MyMongoCollection.Find(new BsonDocument()).ToCursor()) {
 				while (cursor.MoveNext()) {
 					foreach (var doc in cursor.Current) {
-						string jsonText = "{" + doc.ToJson().Substring(doc.ToJson().IndexOf(',') + 1);
-						allRolesInServer.Add(JsonConvert.DeserializeObject<Roles>(jsonText));
+						allRolesInServer.Add(BsonSerializer.Deserialize<Roles>(doc));
 					}
 				}
 			}
