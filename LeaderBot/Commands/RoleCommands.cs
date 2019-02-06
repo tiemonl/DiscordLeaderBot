@@ -137,5 +137,14 @@ namespace LeaderBot {
 
             }
         }
+
+        [Command("moveroles")]
+        public async Task MoveRoles() {
+            var rol = Util.LoadAllRolesFromServer();
+            foreach (var r in rol) {
+                DatabaseUtils.ChangeCollection("rolesNew");
+                CreateObjectUtils.CreateRoleInDatabase(r.Name, r.Description, r.Difficulty);
+            }
+        }
     }
 }
