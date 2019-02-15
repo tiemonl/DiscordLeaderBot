@@ -13,7 +13,8 @@
 		public string[] roles { get; set; }
 		public int totalAttack { get; set; }
 		public int totalDefense { get; set; }
+        public string[] currentLoans { get; set; }
 
-		public UserInfo() { }
+        public UserInfo() { }
 	}
 }

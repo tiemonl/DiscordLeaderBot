@@ -40,6 +40,34 @@ namespace LeaderBot.Utils {
             }
         }
 
+        public static void UpdateArray(string filterField, ulong filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
+            if (doc != null) {
+                var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
+                if (docArray.Contains(arrayCriteria)) {
+                    Logger.Log(new LogMessage(LogSeverity.Warning, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateArray", $"Array already contains {arrayCriteria}"));
+                    return;
+                }
+                var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
+                var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
+                DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+            }
+        }
+
+        public static void UpdateArray(string filterField, string filterCriteria, string arrayField, ulong arrayCriteria, string collectionName = "userData") {
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria, collectionName);
+            if (doc != null) {
+                var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
+                if (docArray.Contains(arrayCriteria.ToString())) {
+                    Logger.Log(new LogMessage(LogSeverity.Warning, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateArray", $"Array already contains {arrayCriteria}"));
+                    return;
+                }
+                var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
+                var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
+                DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+            }
+        }
+
         public static void UpdateRemoveArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
             var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
             if (doc != null) {
