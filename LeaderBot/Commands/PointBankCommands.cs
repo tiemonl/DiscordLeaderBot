@@ -36,7 +36,8 @@ namespace LeaderBot.Commands
 
         [Command("takeloan"), Summary("gets bank total points")]
         public async Task TakeLoan(int amount, [Remainder] string bank) {
-            UserInfo userInfo = ObjectUtils.GetUserInformation(Context.User.Id);
+            var user = Context.User;
+            UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
             EmbedBuilder embed = new EmbedBuilder();
             if (amount <= pointBank.minWithdrawal) {
@@ -44,8 +45,10 @@ namespace LeaderBot.Commands
             } else if (amount > pointBank.currentCredits){
                 await ReplyAsync($"Cannot take out a loan which exceeds the amount of money in the vault!\nCurrent money in the vault is {pointBank.currentCredits}");
             } else {
+                Util.UpdateArray("_id", user.Id, "currentLoans", pointBank._id);
+                Util.UpdateArray("_id", pointBank._id, "currentLoans", user.Id, "pointBanks");
                 DatabaseUtils.IncrementDocument(Context.User.Id, "points", amount);
-                DatabaseUtils.DecrementDocument(pointBank._id, "currentCredits", amount, "pointBank");
+                DatabaseUtils.DecrementDocument(pointBank._id, "currentCredits", amount, "pointBanks");
                 embed.Title = "Succesful loan approval!";
                 embed.Color = Color.Green;
                 embed.AddField($"{Context.User.ToString()} points", userInfo.points + amount);
