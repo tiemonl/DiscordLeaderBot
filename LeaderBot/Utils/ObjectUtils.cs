@@ -1,6 +1,7 @@
 ﻿using Discord;
 using LeaderBot.Competition;
 using LeaderBot.Objects;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using System;
 using System.Collections.Generic;
