@@ -9,6 +9,7 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
+using LeaderBot.Objects;
 
 namespace LeaderBot.Utils {
 	/// <summary>
@@ -27,7 +28,7 @@ namespace LeaderBot.Utils {
 		}
 
         public static void UpdateArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
-            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria, collectionName);
             if (doc != null) {
                 var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
                 if (docArray.Contains(arrayCriteria)) {
@@ -41,7 +42,7 @@ namespace LeaderBot.Utils {
         }
 
         public static void UpdateArray(string filterField, ulong filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
-            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria, collectionName);
             if (doc != null) {
                 var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
                 if (docArray.Contains(arrayCriteria)) {
@@ -64,6 +65,20 @@ namespace LeaderBot.Utils {
                 }
                 var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
                 var update = Builders<BsonDocument>.Update.Push(arrayField, arrayCriteria);
+                DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
+            }
+        }
+
+        public static void UpdateArray(string filterField, string filterCriteria, string arrayField, object arrayCriteria, PointBank bank, string collectionName = "userData") {
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria, collectionName);
+            if (doc != null) {
+                var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonDocument;
+                if (docArray.Contains(arrayCriteria.ToString())) {
+                    Logger.Log(new LogMessage(LogSeverity.Warning, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateArray", $"Array already contains {arrayCriteria}"));
+                    return;
+                }
+                var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
+                var update = Builders<BsonDocument>.Update.Set("currentLoans", bank.currentLoans);
                 DatabaseUtils.MyMongoCollection.FindOneAndUpdateAsync(filter, update);
             }
         }

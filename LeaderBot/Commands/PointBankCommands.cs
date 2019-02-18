@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
-using Discord.WebSocket;
 using Discord;
 using LeaderBot.Utils;
 using LeaderBot.Objects;
+using System.Collections.Generic;
+using MongoDB.Bson;
 
 namespace LeaderBot.Commands
 {
@@ -13,9 +13,9 @@ namespace LeaderBot.Commands
         public PointBankCommands() {
         }
 
-        [Command("points"), Summary("gets bank total points")]
+        [Command("new"), Summary("gets bank total points")]
         public async Task GetPoints() {
-            await ReplyAsync($"Bank has 1000 points!");
+            await ReplyAsync($"Bank created");
 
         }
 
@@ -40,13 +40,16 @@ namespace LeaderBot.Commands
             UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
             EmbedBuilder embed = new EmbedBuilder();
-            if (amount <= pointBank.minWithdrawal) {
+            if (amount < pointBank.minWithdrawal) {
                 await ReplyAsync($"Cannot take out a loan less than {pointBank.minWithdrawal} points!");
             } else if (amount > pointBank.currentCredits){
                 await ReplyAsync($"Cannot take out a loan which exceeds the amount of money in the vault!\nCurrent money in the vault is {pointBank.currentCredits}");
             } else {
-                Util.UpdateArray("_id", user.Id, "currentLoans", pointBank._id);
-                Util.UpdateArray("_id", pointBank._id, "currentLoans", user.Id, "pointBanks");
+                pointBank.currentLoans.Add(user.Id.ToString(), amount);
+                var dict = new BsonDocument {
+                    { user.Id.ToString(), amount}
+                };
+                Util.UpdateArray("_id", pointBank._id, "currentLoans", dict, pointBank, "pointBanks");
                 DatabaseUtils.IncrementDocument(Context.User.Id, "points", amount);
                 DatabaseUtils.DecrementDocument(pointBank._id, "currentCredits", amount, "pointBanks");
                 embed.Title = "Succesful loan approval!";
