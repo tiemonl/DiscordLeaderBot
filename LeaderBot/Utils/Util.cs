@@ -86,7 +86,7 @@ namespace LeaderBot.Utils {
         }
 
         public static void UpdateRemoveArray(string filterField, string filterCriteria, string arrayField, string arrayCriteria, string collectionName = "userData") {
-            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria);
+            var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria, collectionName);
             if (doc != null) {
                 var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonArray;
                 if (!docArray.Contains(arrayCriteria)) {
