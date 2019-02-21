@@ -121,8 +121,25 @@ namespace LeaderBot.Utils {
 				DatabaseUtils.MyMongoCollection.UpdateOneAsync(DatabaseUtils.FilterMongoDocument("_id", user), update);
 			}
 		}
-		
-		public static StringBuilder CreateLeaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
+
+        public static Dictionary<string, int> CheckIfUserHasLoan(ulong user) {
+            DatabaseUtils.ChangeCollection("pointBanks");
+            Dictionary<string, int> currentLoans = new Dictionary<string, int>();
+            using (var cursor = DatabaseUtils.MyMongoCollection.Find(new BsonDocument()).ToCursor()) {
+                while (cursor.MoveNext()) {
+                    foreach (var doc in cursor.Current) {
+                        var docArray = doc.FirstOrDefault(x => x.Name == "currentLoans").Value.AsBsonDocument;
+                        if (docArray.Contains(user.ToString())) {
+                            PointBank pointBank = BsonSerializer.Deserialize<PointBank>(doc);
+                            currentLoans.Add(pointBank._id, pointBank.currentLoans.Values.First());
+                        }
+                    }
+                }
+            }
+            return currentLoans;
+        }
+
+        public static StringBuilder CreateLeaderboard(string leaderboardName, IReadOnlyCollection<IGuildUser> guildUsers, int userCount) {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.Append("```css\n");
 			string titleString = "Username".PadRight(30) + "| Total " + leaderboardName;

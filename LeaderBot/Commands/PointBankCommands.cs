@@ -42,7 +42,7 @@ namespace LeaderBot.Commands
             EmbedBuilder embed = new EmbedBuilder();
             if (amount < pointBank.minWithdrawal) {
                 await ReplyAsync($"Cannot take out a loan less than {pointBank.minWithdrawal} points!");
-            } else if (amount > pointBank.currentCredits){
+            } else if (amount > pointBank.currentCredits) {
                 await ReplyAsync($"Cannot take out a loan which exceeds the amount of money in the vault!\nCurrent money in the vault is {pointBank.currentCredits}");
             } else {
                 pointBank.currentLoans.Add(user.Id.ToString(), amount);
@@ -58,6 +58,19 @@ namespace LeaderBot.Commands
                 embed.AddField($"{pointBank._id}'s vault value", pointBank.currentCredits - amount);
                 await ReplyAsync(embed: embed.Build());
             }
+        }
+
+        [Command("loans"), Summary("Gives current user loan information")]
+        public async Task CurrentLoans() {
+            var loans = Util.CheckIfUserHasLoan(Context.User.Id);
+            EmbedBuilder embed = new EmbedBuilder {
+                Title = "Current loans",
+                Color = Color.DarkRed
+            };
+            foreach (var loan in loans) {
+                embed.AddField(loan.Key, loan.Value);
+            }
+            await ReplyAsync(embed: embed.Build());
         }
     }
 }
