@@ -72,5 +72,32 @@ namespace LeaderBot.Commands
             }
             await ReplyAsync(embed: embed.Build());
         }
+
+        [Command("payloan"), Summary("Lets users pay off loans")]
+        public async Task PayLoan(int amount, string bank) {
+            var user = Context.User;
+            UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
+            PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
+            var loans = Util.CheckIfUserHasLoan(Context.User.Id);
+            foreach (var loan in loans) {
+                if (bank.Equals(loan.Key)) {
+                    if (userInfo.points < amount) {
+                        await ReplyAsync($"{user.Username} has {userInfo.points}.\nYou cannot pay {amount}.");
+                        break;
+                    } else if (amount > loan.Value) {
+                        await ReplyAsync($"Loan is {loan.Value}.\nYou cannot pay {amount}.");
+                        break;
+                    } else if (amount < 1) {
+                        await ReplyAsync($"You cannot pay less than 1 point.");
+                        break;
+                    } else {
+                        DatabaseUtils.DecrementDocument(user.Id, "points", amount);
+                        //Util.UpdateArray()
+                    }
+                }
+            }
+
+            await ReplyAsync();
+        }
     }
 }

@@ -69,13 +69,15 @@ namespace LeaderBot.Utils {
             }
         }
 
-        public static void UpdateArray(string filterField, string filterCriteria, string arrayField, object arrayCriteria, PointBank bank, string collectionName = "userData") {
+        public static void UpdateArray(string filterField, string filterCriteria, string arrayField, object arrayCriteria, PointBank bank, string collectionName = "userData", bool newLoan = true) {
             var doc = DatabaseUtils.FindMongoDocument(filterField, filterCriteria, collectionName);
             if (doc != null) {
                 var docArray = doc.FirstOrDefault(x => x.Name == arrayField).Value.AsBsonDocument;
-                if (docArray.Contains(arrayCriteria.ToString())) {
-                    Logger.Log(new LogMessage(LogSeverity.Warning, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateArray", $"Array already contains {arrayCriteria}"));
-                    return;
+                if (newLoan) {
+                    if (docArray.Contains(arrayCriteria.ToString())) {
+                        Logger.Log(new LogMessage(LogSeverity.Warning, MethodBase.GetCurrentMethod().DeclaringType.FullName + ".UpdateArray", $"Array already contains {arrayCriteria}"));
+                        return;
+                    }
                 }
                 var filter = DatabaseUtils.FilterMongoDocument(filterField, filterCriteria, collectionName);
                 var update = Builders<BsonDocument>.Update.Set("currentLoans", bank.currentLoans);
