@@ -12,11 +12,41 @@ TBA
 
 ## Commands
 
+ - All commands start with the prefix `-` 
+ - `<argument>` = **Required**
+ - `(argument)` = *Optional*
+ - string arguments with spaces must be enclosed in quotes ""
+
+### Prefixes
+- [admin](#admin)
+- [bank](#bank)
+
+---
+
+#### admin
+***Requires administrator privileges***
+
+| Command | Arguments | Description |
+|--|--|--|
+| createroles | N/A | This automatically creates the roles from the database into the server. |
+| giverole | `<user>` `<roleName>` | Gives specified user the specified role. |
+| reorderroles | N/A | This reorders the roles in the server based on difficulty. |
+| makerole | `<roleName>` `<roleDescription>` `<roleDifficulty>` | This creates a role in the database. |
+| givepoints | `<user>` `<points>` | Gives specified user the specified amount of points |
+
+#### bank
+| Command | Arguments | Description |
+|--|--|--|
+| info | `<bankName>` | Returns information about the bank. |
+| takeLoan | `<loanAmount>` `<bankName>` | Requests a loan from the bank. |
+
 
 ## Contributors
 
- - @Owl of Moistness#0001 (Discord)
-	 - [Github](https://github.com/cesarsld)
- - @ShadowDragon7015#7015 (Discord)
-	 - [Github](https://github.com/ShadowDragon7015)
- - @Stine#0781 (Discord)
+- Programmer
+	 - @Owl of Moistness#0001 (Discord)
+		 - [Github](https://github.com/cesarsld)
+	 - @ShadowDragon7015#7015 (Discord)
+		 - [Github](https://github.com/ShadowDragon7015)
+ - Designer
+	 - @Stine#0781 (Discord)
