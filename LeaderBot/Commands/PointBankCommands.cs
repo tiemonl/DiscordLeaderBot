@@ -40,14 +40,19 @@ namespace LeaderBot.Commands
             UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
             EmbedBuilder embed = new EmbedBuilder();
+            if (Util.CheckIfUserHasLoan(user.Id) != null) {
+                await ReplyAsync("You already have a loan out for this bank!");
+                return;
+            }
             if (amount < pointBank.minWithdrawal) {
                 await ReplyAsync($"Cannot take out a loan less than {pointBank.minWithdrawal} points!");
             } else if (amount > pointBank.currentCredits) {
                 await ReplyAsync($"Cannot take out a loan which exceeds the amount of money in the vault!\nCurrent money in the vault is {pointBank.currentCredits}");
             } else {
-                pointBank.currentLoans.Add(user.Id.ToString(), amount);
+                int loanBalance = (int)(amount * (1 + pointBank.interestRate));
+                pointBank.currentLoans.Add(user.Id.ToString(),loanBalance);
                 var dict = new BsonDocument {
-                    { user.Id.ToString(), amount}
+                    { user.Id.ToString(), loanBalance}
                 };
                 Util.UpdateArray("_id", pointBank._id, "currentLoans", dict, pointBank, "pointBanks");
                 DatabaseUtils.IncrementDocument(Context.User.Id, "points", amount);
@@ -74,7 +79,7 @@ namespace LeaderBot.Commands
         }
 
         [Command("payloan"), Summary("Lets users pay off loans")]
-        public async Task PayLoan(int amount, string bank) {
+        public async Task PayLoan(int amount, [Remainder]string bank) {
             var user = Context.User;
             UserInfo userInfo = ObjectUtils.GetUserInformation(user.Id);
             PointBank pointBank = ObjectUtils.GetPointBank(bank.ToLower());
@@ -83,21 +88,29 @@ namespace LeaderBot.Commands
                 if (bank.Equals(loan.Key)) {
                     if (userInfo.points < amount) {
                         await ReplyAsync($"{user.Username} has {userInfo.points}.\nYou cannot pay {amount}.");
-                        break;
+                        return;
                     } else if (amount > loan.Value) {
                         await ReplyAsync($"Loan is {loan.Value}.\nYou cannot pay {amount}.");
-                        break;
+                        return;
                     } else if (amount < 1) {
                         await ReplyAsync($"You cannot pay less than 1 point.");
-                        break;
+                        return;
+                    } else if (amount.Equals(loan.Value)) {
+                        DatabaseUtils.DecrementDocument(user.Id, "points", amount);
+                        pointBank.currentLoans.Remove(user.Id.ToString());
+                        Util.UpdateArray("_id", pointBank._id, "currentLoans", user.Id.ToString(), pointBank, "pointBanks", false);
+                        await ReplyAsync($"Loan paid back in full to {pointBank._id}");
+                        return;
                     } else {
                         DatabaseUtils.DecrementDocument(user.Id, "points", amount);
-                        //Util.UpdateArray()
+                        pointBank.currentLoans[user.Id.ToString()] -= amount;
+                        Util.UpdateArray("_id", pointBank._id, "currentLoans", user.Id.ToString(), pointBank, "pointBanks", false);
+                        await ReplyAsync($"Payment on loan made.\nRemaining balance {pointBank.currentLoans[user.Id.ToString()]}");
+                        return;
                     }
                 }
             }
-
-            await ReplyAsync();
+            await ReplyAsync("You do not have a loan out for this bank.");
         }
     }
 }
