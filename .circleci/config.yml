@@ -13,11 +13,8 @@ jobs:
             echo $DATABASEUTILSLOCAL >> Utils/DatabaseUtilsLocal.cs
             popd
       - run:
-          name: Moving to the project directory
+          name: Build Project
           command: |
             pushd ./LeaderBot/
             dotnet publish -c Release -o /build/out
             popd
-      - run:
-          name: Run result
-          command: dotnet out/LeaderBot.dll
