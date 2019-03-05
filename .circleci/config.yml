@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: microsoft/dotnet:sdk
+    working_directory: /build/
+    steps:
+      - checkout
+      - run:
+          name: Building the project
+          name: Moving to the project directory
+          command: |
+            pushd ./LeaderBot/
+            dotnet publish -c Release -o /build/out
+            popd
+      - run:
+          name: Run result
+          command: dotnet out/LeaderBot.dll
