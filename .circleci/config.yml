@@ -12,6 +12,7 @@ jobs:
             pushd ./LeaderBot/
             ls -al
             echo $RESOURCES_FILE >> Resources.resx
+            ls -al
             popd
       - run:
           name: Moving to the project directory
