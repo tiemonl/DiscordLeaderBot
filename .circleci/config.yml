@@ -12,6 +12,7 @@ jobs:
             pushd ./LeaderBot/
             echo $RESOURCES_CS_FILE >> Resources.Designer.cs
             echo $RESOURCES_FILE >> Resources.resx
+            cat LeaderBot.csproj
             ls -al
             popd
       - run:
