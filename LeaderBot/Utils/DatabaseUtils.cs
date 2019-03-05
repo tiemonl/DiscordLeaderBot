@@ -3,17 +3,19 @@ using MongoDB.Driver;
 using System.Runtime.InteropServices;
 
 namespace LeaderBot.Utils {
-	public static class DatabaseUtils {
+	public static partial class DatabaseUtils {
         public static IMongoDatabase MyMongoDatabase { get; private set; }
         public static IMongoCollection<BsonDocument> MyMongoCollection { get; private set; }
         public static MongoClient MyMongoClient { get; private set; }
+        public static readonly string MongoConnectionString = "";
+        public static readonly string MongoConnectionServerString = "";
 
         /// <summary>
         /// Sets up the mongo connection to the server
         /// </summary>
         public static void SetupMongoDatabase() {
-            var connectionString = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? 
-                Resources.mongoconnectionserver : Resources.mongoconnection;
+            var connectionString = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
+                MongoConnectionServerString : MongoConnectionString;
             MyMongoClient = new MongoClient(connectionString);
             MyMongoDatabase = MyMongoClient.GetDatabase("Leaderbot");
 
