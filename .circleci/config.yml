@@ -7,6 +7,13 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Create Resource.resx file
+          command: |
+            pushd ./LeaderBot/
+            ls -al
+            echo $RESOURCES_FILE >> Resources.resx
+            popd
+      - run:
           name: Moving to the project directory
           command: |
             pushd ./LeaderBot/
