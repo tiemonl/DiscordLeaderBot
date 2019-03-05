@@ -10,7 +10,7 @@ jobs:
           name: Create Resource.resx file
           command: |
             pushd ./LeaderBot/
-            ls -al
+            echo $RESOURCES_CS_FILE >> Resources.Designer.cs
             echo $RESOURCES_FILE >> Resources.resx
             ls -al
             popd
