@@ -10,10 +10,7 @@ jobs:
           name: Create Resource.resx file
           command: |
             pushd ./LeaderBot/
-            echo $RESOURCES_CS_FILE >> Resources.Designer.cs
-            echo $RESOURCES_FILE >> Resources.resx
-            cat LeaderBot.csproj
-            ls -al
+            echo $DATABASEUTILSLOCAL >> Utils/DatabaseUtilsLocal.cs
             popd
       - run:
           name: Moving to the project directory
