@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/tiemonl/DiscordLeaderBot.svg?style=svg)](https://circleci.com/gh/tiemonl/DiscordLeaderBot)
 # Leaderbot
 
 Leaderbot is a Discord bot created for the purpose of adding achievements to the normal chat experience. Achievements come in the form of roles which give no extra privileges. Achievements are wide ranging from just talking in the server to playing built in games within the bot. As the name suggests, there are leaderboards for a wide range of categories. Being on top of the leaderboard includes a transferable role for the #1 spot.
