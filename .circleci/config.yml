@@ -7,7 +7,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Building the project
           name: Moving to the project directory
           command: |
             pushd ./LeaderBot/
