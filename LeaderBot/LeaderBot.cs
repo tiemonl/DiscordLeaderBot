@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using MongoDB.Bson;
 using LeaderBot.LeadingRoles;
 using LeaderBot.Utils;
+using System.Runtime.InteropServices;
 
 namespace LeaderBot {
 	public class LeaderBot {
