@@ -29,8 +29,7 @@ namespace LeaderBot {
 		}
 
 		public async Task MainAsync() {
-			Console.WriteLine("Which bot to run: ");
-			string key = Console.ReadLine();
+			string key = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "prod" : "debug";
 			if (key.Equals("debug")) {
 				CommandPrefix = '?';
 			}
