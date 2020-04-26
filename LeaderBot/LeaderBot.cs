@@ -109,7 +109,7 @@ namespace LeaderBot {
 
 				if (msg == null)
 					return;
-				else if (msg.HasCharPrefix(CommandPrefix, ref argPos)) {
+				else if (msg.HasStringPrefix(CommandPrefix, ref argPos)) {
 					var result = await commands.ExecuteAsync(context, argPos, null);
 
 					if (!result.IsSuccess) // If execution failed, reply with the error message.
