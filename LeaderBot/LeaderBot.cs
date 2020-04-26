@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 namespace LeaderBot {
 	public class LeaderBot {
 		private readonly DiscordSocketClient client;
-		public static char CommandPrefix = '-';
+		public string CommandPrefix;
 		private readonly CommandService commands;
 
 		public LeaderBot() {
@@ -29,12 +29,11 @@ namespace LeaderBot {
 
 		}
 
-		public async Task MainAsync() {
-			string key = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "prod" : "debug";
-			if (key.Equals("debug")) {
-				CommandPrefix = '?';
-			}
-			string token = GetKey.getKey(key);
+		public async Task MainAsync(string token, string prefix) {
+			Console.WriteLine("token: {0}", token);
+            Console.WriteLine("prefix: {0}", prefix);
+            CommandPrefix = prefix;
+            Console.WriteLine("\nLeaderBot started!");
 
 			DatabaseUtils.SetupMongoDatabase();
 			DatabaseUtils.ChangeCollection("userData");
