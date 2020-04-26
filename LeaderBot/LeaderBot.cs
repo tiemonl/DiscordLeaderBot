@@ -29,13 +29,13 @@ namespace LeaderBot {
 
 		}
 
-		public async Task MainAsync(string token, string prefix) {
+		public async Task MainAsync(string token, string prefix, string mongoUrl) {
 			Console.WriteLine("token: {0}", token);
             Console.WriteLine("prefix: {0}", prefix);
             CommandPrefix = prefix;
             Console.WriteLine("\nLeaderBot started!");
 
-			DatabaseUtils.SetupMongoDatabase();
+			DatabaseUtils.SetupMongoDatabase(mongoUrl);
 			DatabaseUtils.ChangeCollection("userData");
 			RoleUtils.SetUpClient(client);
 
